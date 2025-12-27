@@ -1,0 +1,1223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restaurant Employee Portal</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .login-container {
+            max-width: 450px;
+            margin: 100px auto;
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .login-container h1 {
+            color: #667eea;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2em;
+        }
+        
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .form-group label {
+            color: #333;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        
+        .form-group input {
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header-content {
+            flex: 1;
+        }
+        
+        header h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .welcome {
+            color: #666;
+            font-size: 1.1em;
+        }
+        
+        .user-info {
+            text-align: right;
+        }
+        
+        .user-name {
+            color: #667eea;
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .logout-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+        
+        .logout-btn:hover {
+            background: #c82333;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .schedule-item, .task-item, .announcement-item {
+            background: #f8f9fa;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .schedule-item h3, .announcement-item h3 {
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 1.1em;
+        }
+        
+        .schedule-time {
+            color: #764ba2;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        
+        .task-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .task-item input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+        
+        .task-item.completed {
+            opacity: 0.6;
+            text-decoration: line-through;
+        }
+        
+        .announcement-date {
+            color: #999;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            margin-top: 15px;
+            transition: opacity 0.3s ease;
+        }
+        
+        .btn:hover {
+            opacity: 0.9;
+        }
+        
+        .quick-links {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .quick-link {
+            flex: 1;
+            min-width: 150px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            text-decoration: none;
+            transition: transform 0.3s ease;
+            font-weight: bold;
+        }
+        
+        .quick-link:hover {
+            transform: scale(1.05);
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.8);
+        }
+        
+        .modal-content {
+            background: #fff;
+            margin: 20px auto;
+            padding: 0;
+            max-width: 1000px;
+            border-radius: 15px;
+            position: relative;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .close {
+            position: sticky;
+            top: 10px;
+            right: 20px;
+            float: right;
+            color: #667eea;
+            font-size: 35px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 1001;
+            background: white;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+        }
+        
+        .close:hover {
+            color: #764ba2;
+        }
+        
+        .menu-header {
+            background: linear-gradient(135deg, #2d7a7a 0%, #1a5252 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            border-radius: 15px 15px 0 0;
+        }
+        
+        .menu-header h1 {
+            font-size: 2.5em;
+            letter-spacing: 3px;
+        }
+        
+        .menu-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 30px;
+        }
+        
+        .menu-section h2 {
+            color: #2d7a7a;
+            font-size: 1.8em;
+            margin: 25px 0 15px 0;
+            border-bottom: 2px solid #2d7a7a;
+            padding-bottom: 8px;
+        }
+        
+        .menu-section h2:first-child {
+            margin-top: 0;
+        }
+        
+        .menu-item {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .menu-item:last-child {
+            border-bottom: none;
+        }
+        
+        .item-name {
+            font-weight: bold;
+            color: #333;
+            font-size: 1.1em;
+            display: inline-block;
+        }
+        
+        .item-price {
+            float: right;
+            color: #2d7a7a;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        
+        .item-desc {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 5px;
+            clear: both;
+            line-height: 1.4;
+        }
+        
+        .specials-header {
+            background: linear-gradient(135deg, #2d7a7a 0%, #1a5252 100%);
+            color: white !important;
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: none !important;
+            text-align: center;
+        }
+        
+        .menu-item.special {
+            background: #f0f9f9;
+            padding: 12px;
+            border-radius: 8px;
+            border: 2px solid #2d7a7a;
+        }
+        
+        @media (max-width: 768px) {
+            .menu-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .menu-item.clickable {
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .menu-item.clickable:hover {
+            background: #f0f9f9;
+            transform: translateX(5px);
+            border-left: 4px solid #2d7a7a;
+            padding-left: 12px;
+        }
+        
+        .order-summary {
+            background: #f8f9fa;
+            padding: 20px;
+            margin: 20px 30px;
+            border-radius: 10px;
+            border: 2px solid #2d7a7a;
+            position: sticky;
+            top: 20px;
+        }
+        
+        .order-summary h3 {
+            color: #2d7a7a;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+        
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background: white;
+            margin-bottom: 8px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        
+        .order-item-name {
+            flex: 1;
+        }
+        
+        .order-item-qty {
+            background: #2d7a7a;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            margin: 0 10px;
+            font-weight: bold;
+        }
+        
+        .order-item-price {
+            font-weight: bold;
+            color: #2d7a7a;
+        }
+        
+        .order-item-remove {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        
+        .order-item-remove:hover {
+            background: #c82333;
+        }
+        
+        .order-total {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 2px solid #2d7a7a;
+            font-size: 1.3em;
+            text-align: right;
+            color: #2d7a7a;
+        }
+        
+        .receipt {
+            padding: 30px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .receipt-header {
+            text-align: center;
+            border-bottom: 2px dashed #333;
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .receipt-header h2 {
+            font-size: 2em;
+            color: #2d7a7a;
+        }
+        
+        .receipt-date {
+            margin-top: 10px;
+            color: #666;
+        }
+        
+        .receipt-items {
+            margin: 20px 0;
+        }
+        
+        .receipt-item {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+            padding: 5px 0;
+        }
+        
+        .receipt-footer {
+            border-top: 2px dashed #333;
+            padding-top: 20px;
+            margin-top: 20px;
+        }
+        
+        .receipt-total {
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.5em;
+            font-weight: bold;
+            margin: 15px 0;
+        }
+        
+        .receipt-thanks {
+            text-align: center;
+            margin-top: 30px;
+            font-style: italic;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="loginScreen" class="login-container">
+        <h1>🍽️ Employee Login</h1>
+        <div class="login-form">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" placeholder="Enter your username" autocomplete="username">
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" placeholder="Enter your password" autocomplete="current-password">
+            </div>
+            <button class="btn" onclick="login()">Login</button>
+            <p style="text-align: center; color: #999; font-size: 0.9em; margin-top: 10px;">
+                Demo: Use any username/password to login
+            </p>
+        </div>
+    </div>
+
+    <!-- Main Dashboard -->
+    <div id="mainDashboard" class="container hidden">
+        <header>
+            <div class="header-content">
+                <h1>🍽️ Restaurant Employee Portal</h1>
+                <p class="welcome">Welcome back! Here's your dashboard for today</p>
+            </div>
+            <div class="user-info">
+                <div class="user-name">👤 <span id="loggedInUser"></span></div>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
+        </header>
+        
+        <div class="grid">
+            <div class="card">
+                <h2>📅 Your Schedule</h2>
+                <div class="schedule-item">
+                    <h3>Today - Monday</h3>
+                    <p class="schedule-time">5:00 PM - 11:00 PM</p>
+                    <p>Position: Server - Section 3</p>
+                </div>
+                <div class="schedule-item">
+                    <h3>Tomorrow - Tuesday</h3>
+                    <p class="schedule-time">Day Off</p>
+                </div>
+                <div class="schedule-item">
+                    <h3>Wednesday</h3>
+                    <p class="schedule-time">4:00 PM - 10:00 PM</p>
+                    <p>Position: Server - Section 2</p>
+                </div>
+                <button class="btn" onclick="alert('Full schedule feature coming soon!')">View Full Schedule</button>
+            </div>
+            
+            <div class="card">
+                <h2>✅ Daily Tasks</h2>
+                <div class="task-item">
+                    <input type="checkbox" onchange="toggleTask(this)">
+                    <span>Complete opening checklist</span>
+                </div>
+                <div class="task-item">
+                    <input type="checkbox" onchange="toggleTask(this)">
+                    <span>Stock napkins and condiments</span>
+                </div>
+                <div class="task-item">
+                    <input type="checkbox" onchange="toggleTask(this)">
+                    <span>Check menu specials with chef</span>
+                </div>
+                <div class="task-item">
+                    <input type="checkbox" onchange="toggleTask(this)">
+                    <span>Review reservation list</span>
+                </div>
+                <div class="task-item">
+                    <input type="checkbox" onchange="toggleTask(this)">
+                    <span>Complete closing procedures</span>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2>📢 Announcements</h2>
+                <div class="announcement-item">
+                    <h3>New Menu Items This Week</h3>
+                    <p>Please familiarize yourself with the new seasonal specials. Training session tomorrow at 3 PM.</p>
+                    <p class="announcement-date">Posted: Dec 26, 2025</p>
+                </div>
+                <div class="announcement-item">
+                    <h3>Holiday Party Reminder</h3>
+                    <p>Staff holiday party is this Saturday at 8 PM. RSVP by Thursday!</p>
+                    <p class="announcement-date">Posted: Dec 24, 2025</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="grid">
+            <div class="card">
+                <h2>📅 Your Schedule</h2>
+                <div class="schedule-item">
+                    <h3>Today - Monday</h3>
+                    <p class="schedule-time">5:00 PM - 11:00 PM</p>
+                    <p>Position: Server - Section 3</p>
+                </div>
+                <div class="schedule-item">
+                    <h3>Tomorrow - Tuesday</h3>
+                    <p class="schedule-time">Day Off</p>
+                </div>
+                <div class="schedule-item">
+                    <h3>Wednesday</h3>
+                    <p class="schedule-time">4:00 PM - 10:00 PM</p>
+                    <p>Position: Server - Section 2</p>
+                </div>
+                <button class="btn" onclick="alert('Full schedule feature coming soon!')">View Full Schedule</button>
+            </div>
+            
+            <div class="card">
+                <h2>✅ Daily Tasks</h2>
+                <div class="task-item">
+                    <input type="checkbox" onchange="toggleTask(this)">
+                    <span>Complete opening checklist</span>
+                </div>
+                <div class="task-item">
+                    <input type="checkbox" onchange="toggleTask(this)">
+                    <span>Stock napkins and condiments</span>
+                </div>
+                <div class="task-item">
+                    <input type="checkbox" onchange="toggleTask(this)">
+                    <span>Check menu specials with chef</span>
+                </div>
+                <div class="task-item">
+                    <input type="checkbox" onchange="toggleTask(this)">
+                    <span>Review reservation list</span>
+                </div>
+                <div class="task-item">
+                    <input type="checkbox" onchange="toggleTask(this)">
+                    <span>Complete closing procedures</span>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2>📢 Announcements</h2>
+                <div class="announcement-item">
+                    <h3>New Menu Items This Week</h3>
+                    <p>Please familiarize yourself with the new seasonal specials. Training session tomorrow at 3 PM.</p>
+                    <p class="announcement-date">Posted: Dec 26, 2025</p>
+                </div>
+                <div class="announcement-item">
+                    <h3>Holiday Party Reminder</h3>
+                    <p>Staff holiday party is this Saturday at 8 PM. RSVP by Thursday!</p>
+                    <p class="announcement-date">Posted: Dec 24, 2025</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>🍽️ Take Orders</h2>
+            <button class="btn" onclick="showMenu()">Start New Order</button>
+            <div id="currentOrder" style="margin-top: 20px;"></div>
+        </div>
+
+        <div class="card">
+            <h2>🔗 Quick Links</h2>
+            <div class="quick-links">
+                <a href="#" class="quick-link" onclick="alert('Time clock feature coming soon!'); return false;">⏰ Clock In/Out</a>
+                <a href="#" class="quick-link" onclick="alert('Request feature coming soon!'); return false;">📝 Request Time Off</a>
+                <a href="#" class="quick-link" onclick="alert('Swap feature coming soon!'); return false;">🔄 Swap Shifts</a>
+                <a href="#" class="quick-link" onclick="alert('Contact feature coming soon!'); return false;">📞 Contact Manager</a>
+            </div>
+        </div>
+    
+    <div id="menuModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeMenu()">&times;</span>
+            <div class="menu-header">
+                <h1>PEARLS MENU</h1>
+                <p style="margin-top: 10px; font-size: 0.9em;">Click items to add to order</p>
+            </div>
+            <div class="order-summary" id="orderSummary">
+                <h3>Current Order</h3>
+                <div id="orderItems"></div>
+                <div class="order-total">
+                    <strong>Total: $<span id="orderTotal">0</span></strong>
+                </div>
+                <button class="btn" onclick="generateReceipt()" style="width: 100%; margin-top: 10px;">Generate Receipt</button>
+                <button class="btn" onclick="clearOrder()" style="width: 100%; margin-top: 5px; background: #dc3545;">Clear Order</button>
+            </div>
+            <div class="menu-grid">
+                <div class="menu-section">
+                    <h2>Appetizers</h2>
+                    <div class="menu-item clickable" onclick="addToOrder('Calamari', 1100)">
+                        <div class="item-name">Calamari</div>
+                        <div class="item-price">$1,100</div>
+                        <div class="item-desc">Tender rings of squid lightly fried and served with a side of marinara sauce.</div>
+                    </div>
+                    <div class="menu-item clickable" onclick="addToOrder('Clam chowder', 1000)">
+                        <div class="item-name">Clam chowder</div>
+                        <div class="item-price">$1,000</div>
+                        <div class="item-desc">A creamy soup made with fresh clams, potatoes, and onions.</div>
+                    </div>
+                    <div class="menu-item clickable" onclick="addToOrder('Shrimp cocktail', 1300)">
+                        <div class="item-name">Shrimp cocktail</div>
+                        <div class="item-price">$1,300</div>
+                        <div class="item-desc">Chilled jumbo shrimp served with cocktail sauce and lemon wedges.</div>
+                    </div>
+                    <div class="menu-item clickable" onclick="addToOrder('Crab cakes', 1200)">
+                        <div class="item-name">Crab cakes</div>
+                        <div class="item-price">$1,200</div>
+                        <div class="item-desc">Two pan-seared cakes made with lump crab meat, breadcrumbs, and seasonings.</div>
+                    </div>
+
+                    <h2>Desserts</h2>
+                    <div class="menu-item clickable" onclick="addToOrder('Key lime pie', 1000)">
+                        <div class="item-name">Key lime pie</div>
+                        <div class="item-price">$1,000</div>
+                        <div class="item-desc">A tangy pie made with fresh key lime juice and a graham cracker crust.</div>
+                    </div>
+                    <div class="menu-item clickable" onclick="addToOrder('Chocolate lava cake', 1100)">
+                        <div class="item-name">Chocolate lava cake</div>
+                        <div class="item-price">$1,100</div>
+                        <div class="item-desc">A warm chocolate cake with a gooey chocolate center.</div>
+                    </div>
+                    <div class="menu-item clickable" onclick="addToOrder('Creme brulee', 1000)">
+                        <div class="item-name">Creme brulee</div>
+                        <div class="item-price">$1,000</div>
+                        <div class="item-desc">A creamy vanilla custard with a caramelized sugar crust.</div>
+                    </div>
+                    <div class="menu-item clickable" onclick="addToOrder('Cheesecake', 1300)">
+                        <div class="item-name">Cheesecake</div>
+                        <div class="item-price">$1,300</div>
+                        <div class="item-desc">A classic New York-style cheesecake with a graham cracker crust.</div>
+                    </div>
+                </div>
+
+                <div class="menu-section">
+                    <h2>Drinks</h2>
+                    <div class="menu-item clickable" onclick="addToOrder('Spirits', 600)">
+                        <div class="item-name">Spirits</div>
+                        <div class="item-price">$600</div>
+                    </div>
+                    <div class="menu-item clickable" onclick="addToOrder('Wines', 500)">
+                        <div class="item-name">Wines</div>
+                        <div class="item-price">$500</div>
+                    </div>
+                    <div class="menu-item clickable" onclick="addToOrder('Beers', 400)">
+                        <div class="item-name">Beers</div>
+                        <div class="item-price">$400</div>
+                    </div>
+
+                    <h2>Main</h2>
+                    <div class="menu-item clickable" onclick="addToOrder('Grilled salmon', 1900)">
+                        <div class="item-name">Grilled salmon</div>
+                        <div class="item-price">$1,900</div>
+                        <div class="item-desc">Fresh salmon fillet grilled to perfection and served with seasonal vegetables and rice pilaf.</div>
+                    </div>
+                    <div class="menu-item clickable" onclick="addToOrder('Lobster tail', 2100)">
+                        <div class="item-name">Lobster tail</div>
+                        <div class="item-price">$2,100</div>
+                        <div class="item-desc">A succulent 8 oz. lobster tail broiled to perfection and served with drawn butter.</div>
+                    </div>
+                    <div class="menu-item clickable" onclick="addToOrder('Fish and chips', 1800)">
+                        <div class="item-name">Fish and chips</div>
+                        <div class="item-price">$1,800</div>
+                        <div class="item-desc">Beer-battered cod served with French fries and tartar sauce.</div>
+                    </div>
+                    <div class="menu-item clickable" onclick="addToOrder('Seafood pasta', 2000)">
+                        <div class="item-name">Seafood pasta</div>
+                        <div class="item-price">$2,000</div>
+                        <div class="item-desc">Linguine tossed with shrimp, scallops, mussels, and clams in a creamy Alfredo sauce.</div>
+                    </div>
+                    <div class="menu-item clickable" onclick="addToOrder('Seafood paella', 2200)">
+                        <div class="item-name">Seafood paella</div>
+                        <div class="item-price">$2,200</div>
+                        <div class="item-desc">A Spanish-style rice dish with shrimp, clams, mussels, chicken, chorizo, and saffron.</div>
+                    </div>
+
+                    <h2 class="specials-header">SPECIALS</h2>
+                    <div class="menu-item special clickable" onclick="addToOrder('Royale Caviar', 3200)">
+                        <div class="item-name">Royale Caviar</div>
+                        <div class="item-price">$3,200</div>
+                    </div>
+                    <div class="menu-item special clickable" onclick="addToOrder('Whole Lobster Thermidor', 6800)">
+                        <div class="item-name">Whole Lobster Thermidor</div>
+                        <div class="item-price">$6,800</div>
+                    </div>
+                    <div class="menu-item special clickable" onclick="addToOrder('Mixed Sushi Platter', 2900)">
+                        <div class="item-name">Mixed Sushi Platter</div>
+                        <div class="item-price">$2,900</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="receiptModal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <span class="close" onclick="closeReceipt()">&times;</span>
+            <div id="receiptContent"></div>
+            <button class="btn" onclick="printReceipt()" style="width: 100%; margin-top: 20px;">Print Receipt</button>
+        </div>
+    </div>
+    </div>
+    
+    <div id="orderHistoryModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeOrderHistory()">&times;</span>
+            <div class="menu-header">
+                <h1>My Order History</h1>
+            </div>
+            <div style="padding: 30px;" id="orderHistoryContent"></div>
+        </div>
+    </div>
+    
+    <script>
+        let currentUser = null;
+        let currentOrderList = [];
+        let employeeOrders = {};
+        
+        function login() {
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+            
+            if (!username || !password) {
+                alert('Please enter both username and password');
+                return;
+            }
+            
+            currentUser = username;
+            
+            // Initialize employee orders if not exists
+            if (!employeeOrders[currentUser]) {
+                employeeOrders[currentUser] = [];
+            }
+            
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('mainDashboard').classList.remove('hidden');
+            document.getElementById('loggedInUser').textContent = currentUser;
+            
+            updateEmployeeStats();
+        }
+        
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                currentUser = null;
+                currentOrderList = [];
+                document.getElementById('loginScreen').classList.remove('hidden');
+                document.getElementById('mainDashboard').classList.add('hidden');
+                document.getElementById('username').value = '';
+                document.getElementById('password').value = '';
+            }
+        }
+        
+        function updateEmployeeStats() {
+            if (!currentUser || !employeeOrders[currentUser]) return;
+            
+            const orders = employeeOrders[currentUser];
+            const orderCount = orders.length;
+            const totalSales = orders.reduce((sum, order) => sum + order.total, 0);
+            
+            document.getElementById('orderCount').textContent = orderCount;
+            document.getElementById('totalSales').textContent = '
+        
+        function toggleTask(checkbox) {
+            const taskItem = checkbox.parentElement;
+            if (checkbox.checked) {
+                taskItem.classList.add('completed');
+            } else {
+                taskItem.classList.remove('completed');
+            }
+        }
+        
+        function showMenu() {
+            document.getElementById('menuModal').style.display = 'block';
+            updateOrderDisplay();
+        }
+        
+        function closeMenu() {
+            document.getElementById('menuModal').style.display = 'none';
+        }
+        
+        function closeReceipt() {
+            document.getElementById('receiptModal').style.display = 'none';
+        }
+        
+        function addToOrder(itemName, price) {
+            const existing = currentOrderList.find(item => item.name === itemName);
+            if (existing) {
+                existing.quantity++;
+            } else {
+                currentOrderList.push({
+                    name: itemName,
+                    price: price,
+                    quantity: 1
+                });
+            }
+            updateOrderDisplay();
+        }
+        
+        function removeFromOrder(index) {
+            currentOrderList.splice(index, 1);
+            updateOrderDisplay();
+        }
+        
+        function updateOrderDisplay() {
+            const orderItemsDiv = document.getElementById('orderItems');
+            const orderTotalSpan = document.getElementById('orderTotal');
+            
+            if (currentOrderList.length === 0) {
+                orderItemsDiv.innerHTML = '<p style="color: #999; text-align: center;">No items yet</p>';
+                orderTotalSpan.textContent = '0';
+                return;
+            }
+            
+            let html = '';
+            let total = 0;
+            
+            currentOrderList.forEach((item, index) => {
+                const itemTotal = item.price * item.quantity;
+                total += itemTotal;
+                html += `
+                    <div class="order-item">
+                        <div class="order-item-name">${item.name}</div>
+                        <div class="order-item-qty">x${item.quantity}</div>
+                        <div class="order-item-price">${itemTotal.toLocaleString()}</div>
+                        <button class="order-item-remove" onclick="removeFromOrder(${index})">×</button>
+                    </div>
+                `;
+            });
+            
+            orderItemsDiv.innerHTML = html;
+            orderTotalSpan.textContent = total.toLocaleString();
+        }
+        
+        function clearOrder() {
+            if (confirm('Are you sure you want to clear this order?')) {
+                currentOrderList = [];
+                updateOrderDisplay();
+            }
+        }
+        
+        function generateReceipt() {
+            if (currentOrderList.length === 0) {
+                alert('Please add items to the order first.');
+                return;
+            }
+            
+            const now = new Date();
+            const dateStr = now.toLocaleDateString() + ' ' + now.toLocaleTimeString();
+            
+            let itemsHtml = '';
+            let total = 0;
+            
+            currentOrderList.forEach(item => {
+                const itemTotal = item.price * item.quantity;
+                total += itemTotal;
+                itemsHtml += `
+                    <div class="receipt-item">
+                        <span>${item.name} x${item.quantity}</span>
+                        <span>${itemTotal.toLocaleString()}</span>
+                    </div>
+                `;
+            });
+            
+            const receiptHtml = `
+                <div class="receipt">
+                    <div class="receipt-header">
+                        <h2>PEARLS RESTAURANT</h2>
+                        <p>Premium Seafood Dining</p>
+                        <p class="receipt-date">${dateStr}</p>
+                        <p>Order #${Math.floor(Math.random() * 10000)}</p>
+                    </div>
+                    <div class="receipt-items">
+                        ${itemsHtml}
+                    </div>
+                    <div class="receipt-footer">
+                        <div class="receipt-total">
+                            <span>TOTAL:</span>
+                            <span>${total.toLocaleString()}</span>
+                        </div>
+                        <p class="receipt-thanks">Thank you for dining with us!</p>
+                        <p class="receipt-thanks">We hope to see you again soon</p>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('receiptContent').innerHTML = receiptHtml;
+            document.getElementById('receiptModal').style.display = 'block';
+        }
+        
+        function printReceipt() {
+            const receiptContent = document.getElementById('receiptContent').innerHTML;
+            const printWindow = window.open('', '', 'height=600,width=800');
+            printWindow.document.write('<html><head><title>Receipt</title>');
+            printWindow.document.write('<style>body{font-family: "Courier New", monospace; padding: 20px;} .receipt-header{text-align: center; border-bottom: 2px dashed #333; padding-bottom: 20px; margin-bottom: 20px;} .receipt-item{display: flex; justify-content: space-between; margin: 10px 0;} .receipt-footer{border-top: 2px dashed #333; padding-top: 20px; margin-top: 20px;} .receipt-total{display: flex; justify-content: space-between; font-size: 1.5em; font-weight: bold; margin: 15px 0;} .receipt-thanks{text-align: center; margin-top: 30px; font-style: italic;}</style>');
+            printWindow.document.write('</head><body>');
+            printWindow.document.write(receiptContent);
+            printWindow.document.write('</body></html>');
+            printWindow.document.close();
+            printWindow.print();
+        }
+        
+        window.onclick = function(event) {
+            const menuModal = document.getElementById('menuModal');
+            const receiptModal = document.getElementById('receiptModal');
+            const orderHistoryModal = document.getElementById('orderHistoryModal');
+            if (event.target == menuModal) {
+                menuModal.style.display = 'none';
+            }
+            if (event.target == receiptModal) {
+                receiptModal.style.display = 'none';
+            }
+            if (event.target == orderHistoryModal) {
+                orderHistoryModal.style.display = 'none';
+            }
+        }
+        
+        // Allow Enter key to login
+        document.addEventListener('DOMContentLoaded', function() {
+            const passwordInput = document.getElementById('password');
+            if (passwordInput) {
+                passwordInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        login();
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html> + totalSales.toLocaleString();
+        }
+        
+        function viewMyOrders() {
+            if (!currentUser || !employeeOrders[currentUser]) {
+                document.getElementById('orderHistoryContent').innerHTML = '<p style="text-align: center; color: #999;">No orders yet</p>';
+            } else {
+                const orders = employeeOrders[currentUser];
+                if (orders.length === 0) {
+                    document.getElementById('orderHistoryContent').innerHTML = '<p style="text-align: center; color: #999;">No orders yet</p>';
+                } else {
+                    let html = '';
+                    orders.forEach((order, index) => {
+                        html += `
+                            <div style="background: #f8f9fa; padding: 20px; margin-bottom: 20px; border-radius: 10px; border-left: 4px solid #667eea;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
+                                    <strong>Order #${order.orderNumber}</strong>
+                                    <span style="color: #999;">${order.date}</span>
+                                </div>
+                                <div style="margin-left: 20px;">
+                                    ${order.items.map(item => `
+                                        <div style="display: flex; justify-content: space-between; margin: 5px 0;">
+                                            <span>${item.name} x${item.quantity}</span>
+                                            <span>${(item.price * item.quantity).toLocaleString()}</span>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                                <div style="margin-top: 15px; padding-top: 15px; border-top: 2px solid #ddd; text-align: right;">
+                                    <strong style="color: #2d7a7a; font-size: 1.2em;">Total: ${order.total.toLocaleString()}</strong>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    document.getElementById('orderHistoryContent').innerHTML = html;
+                }
+            }
+            document.getElementById('orderHistoryModal').style.display = 'block';
+        }
+        
+        function closeOrderHistory() {
+            document.getElementById('orderHistoryModal').style.display = 'none';
+        }
+        
+        function toggleTask(checkbox) {
+            const taskItem = checkbox.parentElement;
+            if (checkbox.checked) {
+                taskItem.classList.add('completed');
+            } else {
+                taskItem.classList.remove('completed');
+            }
+        }
+        
+        function showMenu() {
+            document.getElementById('menuModal').style.display = 'block';
+            updateOrderDisplay();
+        }
+        
+        function closeMenu() {
+            document.getElementById('menuModal').style.display = 'none';
+        }
+        
+        function closeReceipt() {
+            document.getElementById('receiptModal').style.display = 'none';
+        }
+        
+        function addToOrder(itemName, price) {
+            const existing = currentOrderList.find(item => item.name === itemName);
+            if (existing) {
+                existing.quantity++;
+            } else {
+                currentOrderList.push({
+                    name: itemName,
+                    price: price,
+                    quantity: 1
+                });
+            }
+            updateOrderDisplay();
+        }
+        
+        function removeFromOrder(index) {
+            currentOrderList.splice(index, 1);
+            updateOrderDisplay();
+        }
+        
+        function updateOrderDisplay() {
+            const orderItemsDiv = document.getElementById('orderItems');
+            const orderTotalSpan = document.getElementById('orderTotal');
+            
+            if (currentOrderList.length === 0) {
+                orderItemsDiv.innerHTML = '<p style="color: #999; text-align: center;">No items yet</p>';
+                orderTotalSpan.textContent = '0';
+                return;
+            }
+            
+            let html = '';
+            let total = 0;
+            
+            currentOrderList.forEach((item, index) => {
+                const itemTotal = item.price * item.quantity;
+                total += itemTotal;
+                html += `
+                    <div class="order-item">
+                        <div class="order-item-name">${item.name}</div>
+                        <div class="order-item-qty">x${item.quantity}</div>
+                        <div class="order-item-price">${itemTotal.toLocaleString()}</div>
+                        <button class="order-item-remove" onclick="removeFromOrder(${index})">×</button>
+                    </div>
+                `;
+            });
+            
+            orderItemsDiv.innerHTML = html;
+            orderTotalSpan.textContent = total.toLocaleString();
+        }
+        
+        function clearOrder() {
+            if (confirm('Are you sure you want to clear this order?')) {
+                currentOrderList = [];
+                updateOrderDisplay();
+            }
+        }
+        
+        function generateReceipt() {
+            if (currentOrderList.length === 0) {
+                alert('Please add items to the order first.');
+                return;
+            }
+            
+            const now = new Date();
+            const dateStr = now.toLocaleDateString() + ' ' + now.toLocaleTimeString();
+            
+            let itemsHtml = '';
+            let total = 0;
+            
+            currentOrderList.forEach(item => {
+                const itemTotal = item.price * item.quantity;
+                total += itemTotal;
+                itemsHtml += `
+                    <div class="receipt-item">
+                        <span>${item.name} x${item.quantity}</span>
+                        <span>${itemTotal.toLocaleString()}</span>
+                    </div>
+                `;
+            });
+            
+            const receiptHtml = `
+                <div class="receipt">
+                    <div class="receipt-header">
+                        <h2>PEARLS RESTAURANT</h2>
+                        <p>Premium Seafood Dining</p>
+                        <p class="receipt-date">${dateStr}</p>
+                        <p>Order #${Math.floor(Math.random() * 10000)}</p>
+                    </div>
+                    <div class="receipt-items">
+                        ${itemsHtml}
+                    </div>
+                    <div class="receipt-footer">
+                        <div class="receipt-total">
+                            <span>TOTAL:</span>
+                            <span>${total.toLocaleString()}</span>
+                        </div>
+                        <p class="receipt-thanks">Thank you for dining with us!</p>
+                        <p class="receipt-thanks">We hope to see you again soon</p>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('receiptContent').innerHTML = receiptHtml;
+            document.getElementById('receiptModal').style.display = 'block';
+        }
+        
+        function printReceipt() {
+            const receiptContent = document.getElementById('receiptContent').innerHTML;
+            const printWindow = window.open('', '', 'height=600,width=800');
+            printWindow.document.write('<html><head><title>Receipt</title>');
+            printWindow.document.write('<style>body{font-family: "Courier New", monospace; padding: 20px;} .receipt-header{text-align: center; border-bottom: 2px dashed #333; padding-bottom: 20px; margin-bottom: 20px;} .receipt-item{display: flex; justify-content: space-between; margin: 10px 0;} .receipt-footer{border-top: 2px dashed #333; padding-top: 20px; margin-top: 20px;} .receipt-total{display: flex; justify-content: space-between; font-size: 1.5em; font-weight: bold; margin: 15px 0;} .receipt-thanks{text-align: center; margin-top: 30px; font-style: italic;}</style>');
+            printWindow.document.write('</head><body>');
+            printWindow.document.write(receiptContent);
+            printWindow.document.write('</body></html>');
+            printWindow.document.close();
+            printWindow.print();
+        }
+        
+        window.onclick = function(event) {
+            const menuModal = document.getElementById('menuModal');
+            const receiptModal = document.getElementById('receiptModal');
+            if (event.target == menuModal) {
+                menuModal.style.display = 'none';
+            }
+            if (event.target == receiptModal) {
+                receiptModal.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
