@@ -414,57 +414,6 @@
                 grid-template-columns: 1fr;
             }
         }
-        
-        .waiter-tabs {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            margin: 20px 0;
-        }
-        
-        .waiter-tab {
-            flex: 1;
-            max-width: 150px;
-            background: white;
-            border: 3px solid #ddd;
-            border-radius: 15px;
-            padding: 20px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-align: center;
-        }
-        
-        .waiter-tab:hover {
-            border-color: #667eea;
-            transform: translateY(-5px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
-        }
-        
-        .waiter-tab.active {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-color: #667eea;
-            color: white;
-            transform: scale(1.05);
-        }
-        
-        .waiter-number {
-            font-size: 3em;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-        
-        .waiter-tab.active .waiter-number {
-            color: white;
-        }
-        
-        .waiter-label {
-            font-size: 1em;
-            font-weight: 600;
-        }
-        
-        .waiter-tab.active .waiter-label {
-            color: white;
-        }
     </style>
 </head>
 <body>
@@ -671,7 +620,6 @@
     
     <script>
         var currentUser = null;
-        var currentWaiter = null;
         var currentOrderList = [];
         var employeeOrders = {};
         
@@ -685,7 +633,6 @@
             }
             
             currentUser = username;
-            currentWaiter = null;
             
             if (!employeeOrders[currentUser]) {
                 employeeOrders[currentUser] = [];
@@ -694,7 +641,6 @@
             document.getElementById('loginScreen').classList.add('hidden');
             document.getElementById('mainDashboard').classList.remove('hidden');
             document.getElementById('loggedInUser').textContent = currentUser;
-            document.getElementById('selectedWaiter').textContent = 'Not Selected';
             
             updateEmployeeStats();
         }
@@ -702,30 +648,12 @@
         function logout() {
             if (confirm('Are you sure you want to logout?')) {
                 currentUser = null;
-                currentWaiter = null;
                 currentOrderList = [];
                 document.getElementById('loginScreen').classList.remove('hidden');
                 document.getElementById('mainDashboard').classList.add('hidden');
                 document.getElementById('username').value = '';
                 document.getElementById('password').value = '';
-                
-                var tabs = document.querySelectorAll('.waiter-tab');
-                for (var i = 0; i < tabs.length; i++) {
-                    tabs[i].classList.remove('active');
-                }
             }
-        }
-        
-        function selectWaiter(waiterNum) {
-            currentWaiter = waiterNum;
-            
-            var tabs = document.querySelectorAll('.waiter-tab');
-            for (var i = 0; i < tabs.length; i++) {
-                tabs[i].classList.remove('active');
-            }
-            
-            event.target.closest('.waiter-tab').classList.add('active');
-            document.getElementById('selectedWaiter').textContent = 'Waiter ' + waiterNum;
         }
         
         function toggleTask(checkbox) {
@@ -738,10 +666,6 @@
         }
         
         function showMenu() {
-            if (!currentWaiter) {
-                alert('Please select your waiter number first!');
-                return;
-            }
             document.getElementById('menuModal').style.display = 'block';
             updateOrderDisplay();
         }
@@ -822,11 +746,6 @@
                 return;
             }
             
-            if (!currentWaiter) {
-                alert('Please select your waiter number first!');
-                return;
-            }
-            
             var now = new Date();
             var dateStr = now.toLocaleDateString() + ' ' + now.toLocaleTimeString();
             var orderNumber = Math.floor(Math.random() * 10000);
@@ -840,70 +759,7 @@
                 total += itemTotal;
                 itemsHtml += '<div class="receipt-item">' +
                     '<span>' + item.name + ' x' + item.quantity + '</span>' +
-                    '<span>
-        
-        function printReceipt() {
-            window.print();
-        }
-        
-        function updateEmployeeStats() {
-            if (!currentUser || !employeeOrders[currentUser]) return;
-            
-            var orders = employeeOrders[currentUser];
-            var orderCount = orders.length;
-            var totalSales = 0;
-            for (var i = 0; i < orders.length; i++) {
-                totalSales += orders[i].total;
-            }
-            
-            document.getElementById('orderCount').textContent = orderCount;
-            document.getElementById('totalSales').textContent = '$' + totalSales.toLocaleString();
-        }
-        
-        function viewMyOrders() {
-            var content = '';
-            
-            if (!currentUser || !employeeOrders[currentUser] || employeeOrders[currentUser].length === 0) {
-                content = '<p style="text-align: center; color: #999;">No orders yet</p>';
-            } else {
-                var orders = employeeOrders[currentUser];
-                for (var i = 0; i < orders.length; i++) {
-                    var order = orders[i];
-                    content += '<div style="background: #f8f9fa; padding: 20px; margin-bottom: 20px; border-radius: 10px; border-left: 5px solid #667eea;">' +
-                        '<div style="display: flex; justify-content: space-between; margin-bottom: 15px;">' +
-                        '<div>' +
-                        '<strong>Order #' + order.orderNumber + '</strong>' +
-                        '<div style="color: #2d7a7a; font-weight: bold; margin-top: 5px;">Waiter ' + order.waiter + '</div>' +
-                        '</div>' +
-                        '<span style="color: #999;">' + order.date + '</span>' +
-                        '</div>';
-                    
-                    for (var j = 0; j < order.items.length; j++) {
-                        var item = order.items[j];
-                        content += '<div style="display: flex; justify-content: space-between; margin: 5px 0 5px 20px;">' +
-                            '<span>' + item.name + ' x' + item.quantity + '</span>' +
-                            '<span>
-        
-        window.onclick = function(event) {
-            if (event.target.id === 'menuModal') {
-                closeMenu();
-            }
-            if (event.target.id === 'receiptModal') {
-                closeReceipt();
-            }
-            if (event.target.id === 'orderHistoryModal') {
-                closeOrderHistory();
-            }
-        }
-        
-        document.getElementById('password').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                login();
-            }
-        });
-    </script>
-</body>
-</html> + itemTotal.toLocaleString() + '</span>' +
+                    '<span>$' + itemTotal.toLocaleString() + '</span>' +
                     '</div>';
             }
             
@@ -911,7 +767,6 @@
                 employeeOrders[currentUser].push({
                     orderNumber: orderNumber,
                     date: dateStr,
-                    waiter: currentWaiter,
                     items: JSON.parse(JSON.stringify(currentOrderList)),
                     total: total
                 });
@@ -924,506 +779,13 @@
                 '<p>Premium Seafood Dining</p>' +
                 '<p>' + dateStr + '</p>' +
                 '<p>Order #' + orderNumber + '</p>' +
-                '<p><strong>Waiter ' + currentWaiter + '</strong></p>' +
                 '<p>Server: ' + currentUser + '</p>' +
                 '</div>' +
                 '<div>' + itemsHtml + '</div>' +
                 '<div class="receipt-footer">' +
                 '<div class="receipt-total">' +
                 '<span>TOTAL:</span>' +
-                '<span>
-        
-        function printReceipt() {
-            window.print();
-        }
-        
-        function updateEmployeeStats() {
-            if (!currentUser || !employeeOrders[currentUser]) return;
-            
-            var orders = employeeOrders[currentUser];
-            var orderCount = orders.length;
-            var totalSales = 0;
-            for (var i = 0; i < orders.length; i++) {
-                totalSales += orders[i].total;
-            }
-            
-            document.getElementById('orderCount').textContent = orderCount;
-            document.getElementById('totalSales').textContent = '$' + totalSales.toLocaleString();
-        }
-        
-        function viewMyOrders() {
-            var content = '';
-            
-            if (!currentUser || !employeeOrders[currentUser] || employeeOrders[currentUser].length === 0) {
-                content = '<p style="text-align: center; color: #999;">No orders yet</p>';
-            } else {
-                var orders = employeeOrders[currentUser];
-                for (var i = 0; i < orders.length; i++) {
-                    var order = orders[i];
-                    content += '<div style="background: #f8f9fa; padding: 20px; margin-bottom: 20px; border-radius: 10px;">' +
-                        '<div style="display: flex; justify-content: space-between; margin-bottom: 15px;">' +
-                        '<strong>Order #' + order.orderNumber + '</strong>' +
-                        '<span style="color: #999;">' + order.date + '</span>' +
-                        '</div>';
-                    
-                    for (var j = 0; j < order.items.length; j++) {
-                        var item = order.items[j];
-                        content += '<div style="display: flex; justify-content: space-between; margin: 5px 0 5px 20px;">' +
-                            '<span>' + item.name + ' x' + item.quantity + '</span>' +
-                            '<span>$' + (item.price * item.quantity).toLocaleString() + '</span>' +
-                            '</div>';
-                    }
-                    
-                    content += '<div style="margin-top: 15px; padding-top: 15px; border-top: 2px solid #ddd; text-align: right;">' +
-                        '<strong style="color: #2d7a7a; font-size: 1.2em;">Total: $' + order.total.toLocaleString() + '</strong>' +
-                        '</div></div>';
-                }
-            }
-            
-            document.getElementById('orderHistoryContent').innerHTML = content;
-            document.getElementById('orderHistoryModal').style.display = 'block';
-        }
-        
-        window.onclick = function(event) {
-            if (event.target.id === 'menuModal') {
-                closeMenu();
-            }
-            if (event.target.id === 'receiptModal') {
-                closeReceipt();
-            }
-            if (event.target.id === 'orderHistoryModal') {
-                closeOrderHistory();
-            }
-        }
-        
-        document.getElementById('password').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                login();
-            }
-        });
-    </script>
-</body>
-</html> + total.toLocaleString() + '</span>' +
-                '</div>' +
-                '<p class="receipt-thanks">Thank you for dining with us!</p>' +
-                '</div>' +
-                '</div>';
-            
-            document.getElementById('receiptContent').innerHTML = receiptHtml;
-            document.getElementById('receiptModal').style.display = 'block';
-            
-            currentOrderList = [];
-            updateOrderDisplay();
-        }
-        
-        function printReceipt() {
-            window.print();
-        }
-        
-        function updateEmployeeStats() {
-            if (!currentUser || !employeeOrders[currentUser]) return;
-            
-            var orders = employeeOrders[currentUser];
-            var orderCount = orders.length;
-            var totalSales = 0;
-            for (var i = 0; i < orders.length; i++) {
-                totalSales += orders[i].total;
-            }
-            
-            document.getElementById('orderCount').textContent = orderCount;
-            document.getElementById('totalSales').textContent = '$' + totalSales.toLocaleString();
-        }
-        
-        function viewMyOrders() {
-            var content = '';
-            
-            if (!currentUser || !employeeOrders[currentUser] || employeeOrders[currentUser].length === 0) {
-                content = '<p style="text-align: center; color: #999;">No orders yet</p>';
-            } else {
-                var orders = employeeOrders[currentUser];
-                for (var i = 0; i < orders.length; i++) {
-                    var order = orders[i];
-                    content += '<div style="background: #f8f9fa; padding: 20px; margin-bottom: 20px; border-radius: 10px;">' +
-                        '<div style="display: flex; justify-content: space-between; margin-bottom: 15px;">' +
-                        '<strong>Order #' + order.orderNumber + '</strong>' +
-                        '<span style="color: #999;">' + order.date + '</span>' +
-                        '</div>';
-                    
-                    for (var j = 0; j < order.items.length; j++) {
-                        var item = order.items[j];
-                        content += '<div style="display: flex; justify-content: space-between; margin: 5px 0 5px 20px;">' +
-                            '<span>' + item.name + ' x' + item.quantity + '</span>' +
-                            '<span>$' + (item.price * item.quantity).toLocaleString() + '</span>' +
-                            '</div>';
-                    }
-                    
-                    content += '<div style="margin-top: 15px; padding-top: 15px; border-top: 2px solid #ddd; text-align: right;">' +
-                        '<strong style="color: #2d7a7a; font-size: 1.2em;">Total: $' + order.total.toLocaleString() + '</strong>' +
-                        '</div></div>';
-                }
-            }
-            
-            document.getElementById('orderHistoryContent').innerHTML = content;
-            document.getElementById('orderHistoryModal').style.display = 'block';
-        }
-        
-        window.onclick = function(event) {
-            if (event.target.id === 'menuModal') {
-                closeMenu();
-            }
-            if (event.target.id === 'receiptModal') {
-                closeReceipt();
-            }
-            if (event.target.id === 'orderHistoryModal') {
-                closeOrderHistory();
-            }
-        }
-        
-        document.getElementById('password').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                login();
-            }
-        });
-    </script>
-</body>
-</html> + (item.price * item.quantity).toLocaleString() + '</span>' +
-                            '</div>';
-                    }
-                    
-                    content += '<div style="margin-top: 15px; padding-top: 15px; border-top: 2px solid #ddd; text-align: right;">' +
-                        '<strong style="color: #2d7a7a; font-size: 1.2em;">Total: 
-        
-        window.onclick = function(event) {
-            if (event.target.id === 'menuModal') {
-                closeMenu();
-            }
-            if (event.target.id === 'receiptModal') {
-                closeReceipt();
-            }
-            if (event.target.id === 'orderHistoryModal') {
-                closeOrderHistory();
-            }
-        }
-        
-        document.getElementById('password').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                login();
-            }
-        });
-    </script>
-</body>
-</html> + itemTotal.toLocaleString() + '</span>' +
-                    '</div>';
-            }
-            
-            if (currentUser) {
-                employeeOrders[currentUser].push({
-                    orderNumber: orderNumber,
-                    date: dateStr,
-                    waiter: currentWaiter,
-                    items: JSON.parse(JSON.stringify(currentOrderList)),
-                    total: total
-                });
-                updateEmployeeStats();
-            }
-            
-            var receiptHtml = '<div class="receipt">' +
-                '<div class="receipt-header">' +
-                '<h2>PEARLS RESTAURANT</h2>' +
-                '<p>Premium Seafood Dining</p>' +
-                '<p>' + dateStr + '</p>' +
-                '<p>Order #' + orderNumber + '</p>' +
-                '<p><strong>Waiter ' + currentWaiter + '</strong></p>' +
-                '<p>Server: ' + currentUser + '</p>' +
-                '</div>' +
-                '<div>' + itemsHtml + '</div>' +
-                '<div class="receipt-footer">' +
-                '<div class="receipt-total">' +
-                '<span>TOTAL:</span>' +
-                '<span>
-        
-        function printReceipt() {
-            window.print();
-        }
-        
-        function updateEmployeeStats() {
-            if (!currentUser || !employeeOrders[currentUser]) return;
-            
-            var orders = employeeOrders[currentUser];
-            var orderCount = orders.length;
-            var totalSales = 0;
-            for (var i = 0; i < orders.length; i++) {
-                totalSales += orders[i].total;
-            }
-            
-            document.getElementById('orderCount').textContent = orderCount;
-            document.getElementById('totalSales').textContent = '$' + totalSales.toLocaleString();
-        }
-        
-        function viewMyOrders() {
-            var content = '';
-            
-            if (!currentUser || !employeeOrders[currentUser] || employeeOrders[currentUser].length === 0) {
-                content = '<p style="text-align: center; color: #999;">No orders yet</p>';
-            } else {
-                var orders = employeeOrders[currentUser];
-                for (var i = 0; i < orders.length; i++) {
-                    var order = orders[i];
-                    content += '<div style="background: #f8f9fa; padding: 20px; margin-bottom: 20px; border-radius: 10px;">' +
-                        '<div style="display: flex; justify-content: space-between; margin-bottom: 15px;">' +
-                        '<strong>Order #' + order.orderNumber + '</strong>' +
-                        '<span style="color: #999;">' + order.date + '</span>' +
-                        '</div>';
-                    
-                    for (var j = 0; j < order.items.length; j++) {
-                        var item = order.items[j];
-                        content += '<div style="display: flex; justify-content: space-between; margin: 5px 0 5px 20px;">' +
-                            '<span>' + item.name + ' x' + item.quantity + '</span>' +
-                            '<span>$' + (item.price * item.quantity).toLocaleString() + '</span>' +
-                            '</div>';
-                    }
-                    
-                    content += '<div style="margin-top: 15px; padding-top: 15px; border-top: 2px solid #ddd; text-align: right;">' +
-                        '<strong style="color: #2d7a7a; font-size: 1.2em;">Total: $' + order.total.toLocaleString() + '</strong>' +
-                        '</div></div>';
-                }
-            }
-            
-            document.getElementById('orderHistoryContent').innerHTML = content;
-            document.getElementById('orderHistoryModal').style.display = 'block';
-        }
-        
-        window.onclick = function(event) {
-            if (event.target.id === 'menuModal') {
-                closeMenu();
-            }
-            if (event.target.id === 'receiptModal') {
-                closeReceipt();
-            }
-            if (event.target.id === 'orderHistoryModal') {
-                closeOrderHistory();
-            }
-        }
-        
-        document.getElementById('password').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                login();
-            }
-        });
-    </script>
-</body>
-</html> + total.toLocaleString() + '</span>' +
-                '</div>' +
-                '<p class="receipt-thanks">Thank you for dining with us!</p>' +
-                '</div>' +
-                '</div>';
-            
-            document.getElementById('receiptContent').innerHTML = receiptHtml;
-            document.getElementById('receiptModal').style.display = 'block';
-            
-            currentOrderList = [];
-            updateOrderDisplay();
-        }
-        
-        function printReceipt() {
-            window.print();
-        }
-        
-        function updateEmployeeStats() {
-            if (!currentUser || !employeeOrders[currentUser]) return;
-            
-            var orders = employeeOrders[currentUser];
-            var orderCount = orders.length;
-            var totalSales = 0;
-            for (var i = 0; i < orders.length; i++) {
-                totalSales += orders[i].total;
-            }
-            
-            document.getElementById('orderCount').textContent = orderCount;
-            document.getElementById('totalSales').textContent = '$' + totalSales.toLocaleString();
-        }
-        
-        function viewMyOrders() {
-            var content = '';
-            
-            if (!currentUser || !employeeOrders[currentUser] || employeeOrders[currentUser].length === 0) {
-                content = '<p style="text-align: center; color: #999;">No orders yet</p>';
-            } else {
-                var orders = employeeOrders[currentUser];
-                for (var i = 0; i < orders.length; i++) {
-                    var order = orders[i];
-                    content += '<div style="background: #f8f9fa; padding: 20px; margin-bottom: 20px; border-radius: 10px;">' +
-                        '<div style="display: flex; justify-content: space-between; margin-bottom: 15px;">' +
-                        '<strong>Order #' + order.orderNumber + '</strong>' +
-                        '<span style="color: #999;">' + order.date + '</span>' +
-                        '</div>';
-                    
-                    for (var j = 0; j < order.items.length; j++) {
-                        var item = order.items[j];
-                        content += '<div style="display: flex; justify-content: space-between; margin: 5px 0 5px 20px;">' +
-                            '<span>' + item.name + ' x' + item.quantity + '</span>' +
-                            '<span>$' + (item.price * item.quantity).toLocaleString() + '</span>' +
-                            '</div>';
-                    }
-                    
-                    content += '<div style="margin-top: 15px; padding-top: 15px; border-top: 2px solid #ddd; text-align: right;">' +
-                        '<strong style="color: #2d7a7a; font-size: 1.2em;">Total: $' + order.total.toLocaleString() + '</strong>' +
-                        '</div></div>';
-                }
-            }
-            
-            document.getElementById('orderHistoryContent').innerHTML = content;
-            document.getElementById('orderHistoryModal').style.display = 'block';
-        }
-        
-        window.onclick = function(event) {
-            if (event.target.id === 'menuModal') {
-                closeMenu();
-            }
-            if (event.target.id === 'receiptModal') {
-                closeReceipt();
-            }
-            if (event.target.id === 'orderHistoryModal') {
-                closeOrderHistory();
-            }
-        }
-        
-        document.getElementById('password').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                login();
-            }
-        });
-    </script>
-</body>
-</html> + order.total.toLocaleString() + '</strong>' +
-                        '</div></div>';
-                }
-            }
-            
-            document.getElementById('orderHistoryContent').innerHTML = content;
-            document.getElementById('orderHistoryModal').style.display = 'block';
-        }
-        
-        window.onclick = function(event) {
-            if (event.target.id === 'menuModal') {
-                closeMenu();
-            }
-            if (event.target.id === 'receiptModal') {
-                closeReceipt();
-            }
-            if (event.target.id === 'orderHistoryModal') {
-                closeOrderHistory();
-            }
-        }
-        
-        document.getElementById('password').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                login();
-            }
-        });
-    </script>
-</body>
-</html> + itemTotal.toLocaleString() + '</span>' +
-                    '</div>';
-            }
-            
-            if (currentUser) {
-                employeeOrders[currentUser].push({
-                    orderNumber: orderNumber,
-                    date: dateStr,
-                    waiter: currentWaiter,
-                    items: JSON.parse(JSON.stringify(currentOrderList)),
-                    total: total
-                });
-                updateEmployeeStats();
-            }
-            
-            var receiptHtml = '<div class="receipt">' +
-                '<div class="receipt-header">' +
-                '<h2>PEARLS RESTAURANT</h2>' +
-                '<p>Premium Seafood Dining</p>' +
-                '<p>' + dateStr + '</p>' +
-                '<p>Order #' + orderNumber + '</p>' +
-                '<p><strong>Waiter ' + currentWaiter + '</strong></p>' +
-                '<p>Server: ' + currentUser + '</p>' +
-                '</div>' +
-                '<div>' + itemsHtml + '</div>' +
-                '<div class="receipt-footer">' +
-                '<div class="receipt-total">' +
-                '<span>TOTAL:</span>' +
-                '<span>
-        
-        function printReceipt() {
-            window.print();
-        }
-        
-        function updateEmployeeStats() {
-            if (!currentUser || !employeeOrders[currentUser]) return;
-            
-            var orders = employeeOrders[currentUser];
-            var orderCount = orders.length;
-            var totalSales = 0;
-            for (var i = 0; i < orders.length; i++) {
-                totalSales += orders[i].total;
-            }
-            
-            document.getElementById('orderCount').textContent = orderCount;
-            document.getElementById('totalSales').textContent = '$' + totalSales.toLocaleString();
-        }
-        
-        function viewMyOrders() {
-            var content = '';
-            
-            if (!currentUser || !employeeOrders[currentUser] || employeeOrders[currentUser].length === 0) {
-                content = '<p style="text-align: center; color: #999;">No orders yet</p>';
-            } else {
-                var orders = employeeOrders[currentUser];
-                for (var i = 0; i < orders.length; i++) {
-                    var order = orders[i];
-                    content += '<div style="background: #f8f9fa; padding: 20px; margin-bottom: 20px; border-radius: 10px;">' +
-                        '<div style="display: flex; justify-content: space-between; margin-bottom: 15px;">' +
-                        '<strong>Order #' + order.orderNumber + '</strong>' +
-                        '<span style="color: #999;">' + order.date + '</span>' +
-                        '</div>';
-                    
-                    for (var j = 0; j < order.items.length; j++) {
-                        var item = order.items[j];
-                        content += '<div style="display: flex; justify-content: space-between; margin: 5px 0 5px 20px;">' +
-                            '<span>' + item.name + ' x' + item.quantity + '</span>' +
-                            '<span>$' + (item.price * item.quantity).toLocaleString() + '</span>' +
-                            '</div>';
-                    }
-                    
-                    content += '<div style="margin-top: 15px; padding-top: 15px; border-top: 2px solid #ddd; text-align: right;">' +
-                        '<strong style="color: #2d7a7a; font-size: 1.2em;">Total: $' + order.total.toLocaleString() + '</strong>' +
-                        '</div></div>';
-                }
-            }
-            
-            document.getElementById('orderHistoryContent').innerHTML = content;
-            document.getElementById('orderHistoryModal').style.display = 'block';
-        }
-        
-        window.onclick = function(event) {
-            if (event.target.id === 'menuModal') {
-                closeMenu();
-            }
-            if (event.target.id === 'receiptModal') {
-                closeReceipt();
-            }
-            if (event.target.id === 'orderHistoryModal') {
-                closeOrderHistory();
-            }
-        }
-        
-        document.getElementById('password').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                login();
-            }
-        });
-    </script>
-</body>
-</html> + total.toLocaleString() + '</span>' +
+                '<span>$' + total.toLocaleString() + '</span>' +
                 '</div>' +
                 '<p class="receipt-thanks">Thank you for dining with us!</p>' +
                 '</div>' +
