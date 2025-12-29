@@ -3,869 +3,467 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Restaurant Employee Portal</title>
+    <title>Pearls | Del Perro Pier</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
+            font-family: 'Georgia', serif;
+            color: #d4af37;
+            overflow-x: hidden;
         }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        
-        .login-container {
-            max-width: 450px;
-            margin: 100px auto;
-            background: white;
-            padding: 40px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-        }
-        
-        .login-container h1 {
-            color: #667eea;
-            text-align: center;
-            margin-bottom: 30px;
-            font-size: 2em;
-        }
-        
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        .form-group label {
-            display: block;
-            color: #333;
-            margin-bottom: 8px;
-            font-weight: 600;
-        }
-        
-        .form-group input {
+
+        /* Fixed background that stays in place */
+        .fixed-background {
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
-            padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            font-size: 1em;
+            height: 100%;
+            background-image: url('https://i.imgur.com/NrjuDjh.jpeg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            z-index: -1;
         }
-        
-        .form-group input:focus {
-            outline: none;
-            border-color: #667eea;
+
+        .fixed-background::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
         }
-        
-        .hidden {
-            display: none !important;
+
+        /* Content that scrolls over the fixed background */
+        .content-wrapper {
+            position: relative;
+            z-index: 1;
         }
-        
-        header {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            margin-bottom: 30px;
+
+        .header {
+            background: rgba(0, 0, 0, 0.85);
+            padding: 20px 0;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            flex-wrap: wrap;
+            padding: 0 40px;
         }
-        
-        header h1 {
-            color: #667eea;
-            font-size: 2em;
-            margin-bottom: 10px;
-        }
-        
-        .welcome {
-            color: #666;
-            font-size: 1.1em;
-        }
-        
-        .user-info {
-            text-align: right;
-        }
-        
-        .user-name {
-            color: #667eea;
-            font-size: 1.2em;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-        
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 25px;
-            margin-bottom: 30px;
-        }
-        
-        .card {
-            background: white;
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-        }
-        
-        .card h2 {
-            color: #667eea;
-            margin-bottom: 20px;
-            font-size: 1.5em;
-            border-bottom: 3px solid #667eea;
-            padding-bottom: 10px;
-        }
-        
-        .schedule-item, .task-item, .announcement-item {
-            background: #f8f9fa;
-            padding: 15px;
-            margin-bottom: 15px;
-            border-radius: 10px;
-            border-left: 4px solid #667eea;
-        }
-        
-        .schedule-item h3, .announcement-item h3 {
-            color: #333;
-            margin-bottom: 8px;
-            font-size: 1.1em;
-        }
-        
-        .schedule-time {
-            color: #764ba2;
-            font-weight: bold;
-            font-size: 1.1em;
-        }
-        
-        .task-item {
+
+        .logo {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 15px;
         }
-        
-        .task-item input[type="checkbox"] {
-            width: 20px;
-            height: 20px;
-            cursor: pointer;
-        }
-        
-        .task-item.completed {
-            opacity: 0.6;
-            text-decoration: line-through;
-        }
-        
-        .announcement-date {
-            color: #999;
-            font-size: 0.9em;
-            margin-top: 5px;
-        }
-        
-        .btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 1em;
-            margin-top: 15px;
-            width: 100%;
-        }
-        
-        .btn:hover {
-            opacity: 0.9;
-        }
-        
-        .logout-btn {
-            background: #dc3545;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 0.9em;
-        }
-        
-        .logout-btn:hover {
-            background: #c82333;
-        }
-        
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.8);
-        }
-        
-        .modal-content {
-            background: #fff;
-            margin: 20px auto;
-            padding: 0;
-            max-width: 1000px;
-            border-radius: 15px;
-            position: relative;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-        
-        .close {
-            position: sticky;
-            top: 10px;
-            right: 20px;
-            float: right;
-            color: #667eea;
-            font-size: 35px;
-            font-weight: bold;
-            cursor: pointer;
-            z-index: 1001;
-            background: white;
+
+        .logo-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #1e3a5f, #2a5a8f);
             border-radius: 50%;
-            width: 40px;
-            height: 40px;
             display: flex;
             align-items: center;
             justify-content: center;
-            line-height: 1;
+            font-size: 24px;
+            color: #d4af37;
+            border: 2px solid #d4af37;
         }
-        
-        .close:hover {
-            color: #764ba2;
-        }
-        
-        .menu-header {
-            background: linear-gradient(135deg, #2d7a7a 0%, #1a5252 100%);
-            color: white;
-            padding: 30px;
-            text-align: center;
-            border-radius: 15px 15px 0 0;
-        }
-        
-        .menu-header h1 {
-            font-size: 2.5em;
+
+        .logo-text h1 {
+            font-size: 24px;
+            color: #d4af37;
             letter-spacing: 3px;
-            color: white;
+            font-weight: 300;
         }
-        
+
+        .logo-text p {
+            font-size: 11px;
+            color: #9ca3af;
+            letter-spacing: 2px;
+            margin-top: 2px;
+        }
+
+        nav {
+            display: flex;
+            gap: 40px;
+        }
+
+        nav a {
+            color: #d4af37;
+            text-decoration: none;
+            font-size: 16px;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+            padding-bottom: 5px;
+            border-bottom: 2px solid transparent;
+        }
+
+        nav a:hover, nav a.active {
+            border-bottom: 2px solid #d4af37;
+        }
+
+        .welcome-section {
+            padding: 80px 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 70vh;
+        }
+
+        .welcome-box {
+            max-width: 600px;
+            background: rgba(0, 0, 0, 0.75);
+            padding: 50px;
+            border: 2px solid rgba(212, 175, 55, 0.5);
+            border-radius: 8px;
+            backdrop-filter: blur(10px);
+        }
+
+        .welcome-box h2 {
+            font-size: 42px;
+            color: #d4af37;
+            margin-bottom: 30px;
+            font-weight: 300;
+            letter-spacing: 2px;
+        }
+
+        .welcome-box p {
+            font-size: 16px;
+            line-height: 1.8;
+            color: #e5e7eb;
+            margin-bottom: 20px;
+        }
+
+        .menu-container {
+            background: rgba(10, 14, 39, 0.95);
+            padding: 60px 40px 80px;
+        }
+
+        .content {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .menu-section {
+            margin-bottom: 80px;
+        }
+
+        .section-header {
+            font-size: 36px;
+            color: #d4af37;
+            margin-bottom: 40px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(212, 175, 55, 0.3);
+            letter-spacing: 2px;
+            font-weight: 300;
+        }
+
         .menu-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
             gap: 30px;
-            padding: 30px;
         }
-        
-        .menu-section h2 {
-            color: #2d7a7a;
-            font-size: 1.8em;
-            margin: 25px 0 15px 0;
-            border-bottom: 2px solid #2d7a7a;
-            padding-bottom: 8px;
-        }
-        
+
         .menu-item {
-            margin-bottom: 20px;
-            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 25px;
             border-radius: 8px;
-            border: 1px solid #eee;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            transition: all 0.3s;
         }
-        
-        .menu-item.clickable {
-            cursor: pointer;
-            transition: all 0.2s ease;
+
+        .menu-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(212, 175, 55, 0.4);
+            transform: translateY(-3px);
         }
-        
-        .menu-item.clickable:hover {
-            background: #f0f9f9;
-            border-color: #2d7a7a;
+
+        .item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 12px;
         }
-        
+
         .item-name {
-            font-weight: bold;
-            color: #333;
-            font-size: 1.1em;
+            font-size: 20px;
+            color: #d4af37;
+            font-weight: 400;
+            letter-spacing: 1px;
         }
-        
+
         .item-price {
-            float: right;
-            color: #2d7a7a;
-            font-weight: bold;
-            font-size: 1.1em;
+            font-size: 18px;
+            color: #fbbf24;
+            font-weight: 600;
         }
-        
-        .item-desc {
-            color: #666;
-            font-size: 0.9em;
-            margin-top: 5px;
-            clear: both;
+
+        .item-description {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #9ca3af;
         }
-        
-        .order-summary {
-            background: #f8f9fa;
-            padding: 20px;
-            margin: 20px 30px;
-            border-radius: 10px;
-            border: 2px solid #2d7a7a;
+
+        .specials-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
         }
-        
-        .order-summary h3 {
-            color: #2d7a7a;
-            margin-bottom: 15px;
-        }
-        
-        .order-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px;
-            background: white;
-            margin-bottom: 8px;
-            border-radius: 5px;
-        }
-        
-        .order-item-qty {
-            background: #2d7a7a;
-            color: white;
-            padding: 5px 10px;
-            border-radius: 5px;
-            margin: 0 10px;
-        }
-        
-        .order-item-remove {
-            background: #dc3545;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        
-        .order-total {
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 2px solid #2d7a7a;
-            font-size: 1.3em;
-            text-align: right;
-            color: #2d7a7a;
-        }
-        
-        .receipt {
+
+        .special-item {
+            background: linear-gradient(135deg, rgba(30, 58, 95, 0.4), rgba(42, 90, 143, 0.3));
             padding: 30px;
-            font-family: 'Courier New', monospace;
-        }
-        
-        .receipt-header {
-            text-align: center;
-            border-bottom: 2px dashed #333;
-            padding-bottom: 20px;
-            margin-bottom: 20px;
-        }
-        
-        .receipt-header h2 {
-            font-size: 2em;
-            color: #2d7a7a;
-        }
-        
-        .receipt-item {
-            display: flex;
-            justify-content: space-between;
-            margin: 10px 0;
-        }
-        
-        .receipt-footer {
-            border-top: 2px dashed #333;
-            padding-top: 20px;
-            margin-top: 20px;
-        }
-        
-        .receipt-total {
-            display: flex;
-            justify-content: space-between;
-            font-size: 1.5em;
-            font-weight: bold;
-            margin: 15px 0;
-        }
-        
-        .receipt-thanks {
-            text-align: center;
-            margin-top: 30px;
-            font-style: italic;
-        }
-        
-        .specials-header {
-            background: linear-gradient(135deg, #2d7a7a 0%, #1a5252 100%);
-            color: white !important;
-            padding: 10px 15px;
             border-radius: 8px;
-            border: none !important;
+            border: 2px solid rgba(212, 175, 55, 0.3);
+            text-align: center;
         }
-        
+
+        .special-item .item-name {
+            font-size: 24px;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .drinks-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+        }
+
+        .drink-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 30px;
+            border-radius: 8px;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            text-align: center;
+        }
+
+        .footer {
+            background: rgba(0, 0, 0, 0.9);
+            padding: 40px;
+            text-align: center;
+            color: #9ca3af;
+            border-top: 1px solid rgba(212, 175, 55, 0.3);
+        }
+
         @media (max-width: 768px) {
             .menu-grid {
                 grid-template-columns: 1fr;
+            }
+            
+            .drinks-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-container {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            nav {
+                gap: 20px;
             }
         }
     </style>
 </head>
 <body>
-    <!-- Login Screen -->
-    <div id="loginScreen" class="login-container">
-        <h1>🍽️ Employee Login</h1>
-        <div class="form-group">
-            <label for="username">Username</label>
-            <input type="text" id="username" placeholder="Enter your username">
-        </div>
-        <div class="form-group">
-            <label for="password">Password</label>
-            <input type="password" id="password" placeholder="Enter your password">
-        </div>
-        <button class="btn" onclick="login()">Login</button>
-        <p style="text-align: center; color: #999; font-size: 0.9em; margin-top: 10px;">
-            Demo: Use any username/password to login
-        </p>
-    </div>
+    <!-- Fixed Background Image -->
+    <div class="fixed-background"></div>
 
-    <!-- Main Dashboard -->
-    <div id="mainDashboard" class="container hidden">
-        <header>
-            <div>
-                <h1>🍽️ Pearls Restaurant</h1>
-                <p class="welcome">Employee Portal</p>
-            </div>
-            <div class="user-info">
-                <div class="user-name">👤 <span id="loggedInUser"></span></div>
-                <div class="user-name" style="font-size: 1em; margin-bottom: 5px;">
-                    Waiter: <span id="selectedWaiter" style="color: #2d7a7a;">Not Selected</span>
+    <!-- Scrollable Content -->
+    <div class="content-wrapper">
+        <header class="header">
+            <div class="nav-container">
+                <div class="logo">
+                    <div class="logo-icon">🦪</div>
+                    <div class="logo-text">
+                        <h1>PEARLS | DEL PERRO PIER</h1>
+                        <p>Experience the Finest Catch Under the Stars</p>
+                    </div>
                 </div>
-                <button class="logout-btn" onclick="logout()">Logout</button>
+                <nav>
+                    <a href="#" class="active">Home</a>
+                    <a href="#menu">Menu</a>
+                    <a href="#about">About Us</a>
+                    <a href="#contact">Contact</a>
+                </nav>
             </div>
         </header>
-        
-        <div class="grid">
-            <div class="card">
-                <h2>👥 Select Your Waiter Number</h2>
-                <div class="waiter-tabs">
-                    <button class="waiter-tab" onclick="selectWaiter(1)">
-                        <div class="waiter-number">1</div>
-                        <div class="waiter-label">Waiter 1</div>
-                    </button>
-                    <button class="waiter-tab" onclick="selectWaiter(2)">
-                        <div class="waiter-number">2</div>
-                        <div class="waiter-label">Waiter 2</div>
-                    </button>
-                    <button class="waiter-tab" onclick="selectWaiter(3)">
-                        <div class="waiter-number">3</div>
-                        <div class="waiter-label">Waiter 3</div>
-                    </button>
-                </div>
-                <p style="text-align: center; color: #999; font-size: 0.9em; margin-top: 15px;">
-                    Select your waiter number before taking orders
-                </p>
-            </div>
 
-            <div class="card">
-                <h2>📊 My Orders Today</h2>
-                <div style="display: flex; justify-content: space-around; text-align: center; margin: 20px 0;">
-                    <div>
-                        <div style="font-size: 2em; color: #667eea; font-weight: bold;" id="orderCount">0</div>
-                        <div style="color: #666;">Orders</div>
-                    </div>
-                    <div>
-                        <div style="font-size: 2em; color: #2d7a7a; font-weight: bold;" id="totalSales">$0</div>
-                        <div style="color: #666;">Total Sales</div>
-                    </div>
-                </div>
-                <button class="btn" onclick="viewMyOrders()">View Order History</button>
+        <section class="welcome-section">
+            <div class="welcome-box">
+                <h2>Welcome to Pearls</h2>
+                <p>Pearls has long stood as the crown jewel of the Los Santos coastline. Nestled along the iconic Del Perro Pier, our mission is simple: to offer a refined escape where world-class cuisine meets oceanfront elegance.</p>
+                <p>From sustainably sourced seafood to the craftsmanship of our elite culinary team, every dish is prepared with precision and passion. Whether you're savoring our Atlantic-caught cod or indulging in our signature Key Lime Pie, each bite is designed to create a lasting memory.</p>
+                <p>With ambient lighting and outdoor seating on our scenic terrace, Pearls is the ultimate destination for romantic evenings, private gatherings, and unforgettable celebrations by the sea.</p>
             </div>
+        </section>
 
-            <div class="card">
-                <h2>🍽️ Take Orders</h2>
-                <button class="btn" onclick="showMenu()">Start New Order</button>
-            </div>
-            
-            <div class="card">
-                <h2>✅ Daily Tasks</h2>
-                <div class="task-item">
-                    <input type="checkbox" onchange="toggleTask(this)">
-                    <span>Complete opening checklist</span>
-                </div>
-                <div class="task-item">
-                    <input type="checkbox" onchange="toggleTask(this)">
-                    <span>Stock supplies</span>
-                </div>
-                <div class="task-item">
-                    <input type="checkbox" onchange="toggleTask(this)">
-                    <span>Check reservations</span>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Menu Modal -->
-    <div id="menuModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeMenu()">&times;</span>
-            <div class="menu-header">
-                <h1>PEARLS MENU</h1>
-                <p>Click items to add to order</p>
-            </div>
-            <div class="order-summary">
-                <h3>Current Order</h3>
-                <div id="orderItems"><p style="text-align: center; color: #999;">No items yet</p></div>
-                <div class="order-total">
-                    <strong>Total: $<span id="orderTotal">0</span></strong>
-                </div>
-                <button class="btn" onclick="generateReceipt()">Generate Receipt</button>
-                <button class="btn" onclick="clearOrder()" style="background: #dc3545;">Clear Order</button>
-            </div>
-            <div class="menu-grid">
-                <div class="menu-section">
-                    <h2>Appetizers</h2>
-                    <div class="menu-item clickable" onclick="addToOrder('Calamari', 1100)">
-                        <div class="item-name">Calamari</div>
-                        <div class="item-price">$1,100</div>
-                        <div class="item-desc">Tender rings of squid lightly fried</div>
+        <div class="menu-container" id="menu">
+            <main class="content">
+                <section class="menu-section">
+                    <h2 class="section-header">Appetizers</h2>
+                    <div class="menu-grid">
+                        <div class="menu-item">
+                            <div class="item-header">
+                                <span class="item-name">Calamari</span>
+                                <span class="item-price">$1,100</span>
+                            </div>
+                            <p class="item-description">Tender rings of squid lightly fried and served with a side of marinara sauce</p>
+                        </div>
+                        <div class="menu-item">
+                            <div class="item-header">
+                                <span class="item-name">Clam Chowder</span>
+                                <span class="item-price">$1,000</span>
+                            </div>
+                            <p class="item-description">A creamy soup made with fresh clams, potatoes, and onions</p>
+                        </div>
+                        <div class="menu-item">
+                            <div class="item-header">
+                                <span class="item-name">Shrimp Cocktail</span>
+                                <span class="item-price">$1,300</span>
+                            </div>
+                            <p class="item-description">Chilled jumbo shrimp served with cocktail sauce and lemon wedges</p>
+                        </div>
+                        <div class="menu-item">
+                            <div class="item-header">
+                                <span class="item-name">Crab Cakes</span>
+                                <span class="item-price">$1,200</span>
+                            </div>
+                            <p class="item-description">Two pan-seared cakes made with lump crab meat, breadcrumbs, and seasonings</p>
+                        </div>
                     </div>
-                    <div class="menu-item clickable" onclick="addToOrder('Clam chowder', 1000)">
-                        <div class="item-name">Clam chowder</div>
-                        <div class="item-price">$1,000</div>
-                        <div class="item-desc">Creamy soup with fresh clams</div>
-                    </div>
-                    <div class="menu-item clickable" onclick="addToOrder('Shrimp cocktail', 1300)">
-                        <div class="item-name">Shrimp cocktail</div>
-                        <div class="item-price">$1,300</div>
-                        <div class="item-desc">Chilled jumbo shrimp</div>
-                    </div>
-                    <div class="menu-item clickable" onclick="addToOrder('Crab cakes', 1200)">
-                        <div class="item-name">Crab cakes</div>
-                        <div class="item-price">$1,200</div>
-                        <div class="item-desc">Pan-seared crab cakes</div>
-                    </div>
-                </div>
+                </section>
 
-                <div class="menu-section">
-                    <h2>Main Courses</h2>
-                    <div class="menu-item clickable" onclick="addToOrder('Grilled salmon', 1900)">
-                        <div class="item-name">Grilled salmon</div>
-                        <div class="item-price">$1,900</div>
-                        <div class="item-desc">Fresh salmon with vegetables</div>
+                <section class="menu-section">
+                    <h2 class="section-header">Main Courses</h2>
+                    <div class="menu-grid">
+                        <div class="menu-item">
+                            <div class="item-header">
+                                <span class="item-name">Grilled Salmon</span>
+                                <span class="item-price">$1,900</span>
+                            </div>
+                            <p class="item-description">Fresh salmon fillet grilled to perfection and served with seasonal vegetables and rice pilaf</p>
+                        </div>
+                        <div class="menu-item">
+                            <div class="item-header">
+                                <span class="item-name">Lobster Tail</span>
+                                <span class="item-price">$2,100</span>
+                            </div>
+                            <p class="item-description">A succulent 8 oz. lobster tail broiled to perfection and served with drawn butter</p>
+                        </div>
+                        <div class="menu-item">
+                            <div class="item-header">
+                                <span class="item-name">Fish and Chips</span>
+                                <span class="item-price">$1,800</span>
+                            </div>
+                            <p class="item-description">Beer-battered cod served with French fries and tartar sauce</p>
+                        </div>
+                        <div class="menu-item">
+                            <div class="item-header">
+                                <span class="item-name">Seafood Pasta</span>
+                                <span class="item-price">$2,000</span>
+                            </div>
+                            <p class="item-description">Linguine tossed with shrimp, scallops, mussels, and clams in a creamy Alfredo sauce</p>
+                        </div>
+                        <div class="menu-item">
+                            <div class="item-header">
+                                <span class="item-name">Seafood Paella</span>
+                                <span class="item-price">$2,200</span>
+                            </div>
+                            <p class="item-description">A Spanish-style rice dish with shrimp, clams, mussels, chicken, chorizo, and saffron</p>
+                        </div>
                     </div>
-                    <div class="menu-item clickable" onclick="addToOrder('Lobster tail', 2100)">
-                        <div class="item-name">Lobster tail</div>
-                        <div class="item-price">$2,100</div>
-                        <div class="item-desc">8 oz. lobster tail broiled</div>
+                </section>
+
+                <section class="menu-section">
+                    <h2 class="section-header">Specials</h2>
+                    <div class="specials-grid">
+                        <div class="special-item">
+                            <span class="item-name">Royale Caviar</span>
+                            <span class="item-price">$3,200</span>
+                        </div>
+                        <div class="special-item">
+                            <span class="item-name">Whole Lobster Thermidor</span>
+                            <span class="item-price">$3,000</span>
+                        </div>
+                        <div class="special-item">
+                            <span class="item-name">Mixed Sushi Platter</span>
+                            <span class="item-price">$2,900</span>
+                        </div>
                     </div>
-                    <div class="menu-item clickable" onclick="addToOrder('Fish and chips', 1800)">
-                        <div class="item-name">Fish and chips</div>
-                        <div class="item-price">$1,800</div>
-                        <div class="item-desc">Beer-battered cod</div>
+                </section>
+
+                <section class="menu-section">
+                    <h2 class="section-header">Desserts</h2>
+                    <div class="menu-grid">
+                        <div class="menu-item">
+                            <div class="item-header">
+                                <span class="item-name">Key Lime Pie</span>
+                                <span class="item-price">$1,000</span>
+                            </div>
+                            <p class="item-description">A tangy pie made with fresh key lime juice and a graham cracker crust</p>
+                        </div>
+                        <div class="menu-item">
+                            <div class="item-header">
+                                <span class="item-name">Chocolate Lava Cake</span>
+                                <span class="item-price">$1,100</span>
+                            </div>
+                            <p class="item-description">A warm chocolate cake with a gooey chocolate center</p>
+                        </div>
+                        <div class="menu-item">
+                            <div class="item-header">
+                                <span class="item-name">Creme Brulee</span>
+                                <span class="item-price">$1,000</span>
+                            </div>
+                            <p class="item-description">A creamy vanilla custard with a caramelized sugar crust</p>
+                        </div>
+                        <div class="menu-item">
+                            <div class="item-header">
+                                <span class="item-name">Cheesecake</span>
+                                <span class="item-price">$1,300</span>
+                            </div>
+                            <p class="item-description">A classic New York-style cheesecake with a graham cracker crust</p>
+                        </div>
                     </div>
-                    <div class="menu-item clickable" onclick="addToOrder('Seafood pasta', 2000)">
-                        <div class="item-name">Seafood pasta</div>
-                        <div class="item-price">$2,000</div>
-                        <div class="item-desc">Linguine with seafood</div>
+                </section>
+
+                <section class="menu-section">
+                    <h2 class="section-header">Drinks</h2>
+                    <div class="drinks-grid">
+                        <div class="drink-item">
+                            <span class="item-name">Spirits</span>
+                            <span class="item-price">$600</span>
+                        </div>
+                        <div class="drink-item">
+                            <span class="item-name">Wines</span>
+                            <span class="item-price">$500</span>
+                        </div>
+                        <div class="drink-item">
+                            <span class="item-name">Beers</span>
+                            <span class="item-price">$400</span>
+                        </div>
                     </div>
-                    <div class="menu-item clickable" onclick="addToOrder('Seafood paella', 2200)">
-                        <div class="item-name">Seafood paella</div>
-                        <div class="item-price">$2,200</div>
-                        <div class="item-desc">Spanish-style rice dish</div>
-                    </div>
-                    
-                    <h2 class="specials-header">SPECIALS</h2>
-                    <div class="menu-item clickable" onclick="addToOrder('Royale Caviar', 3200)">
-                        <div class="item-name">Royale Caviar</div>
-                        <div class="item-price">$3,200</div>
-                    </div>
-                    <div class="menu-item clickable" onclick="addToOrder('Whole Lobster Thermidor', 6800)">
-                        <div class="item-name">Whole Lobster Thermidor</div>
-                        <div class="item-price">$6,800</div>
-                    </div>
-                    <div class="menu-item clickable" onclick="addToOrder('Mixed Sushi Platter', 2900)">
-                        <div class="item-name">Mixed Sushi Platter</div>
-                        <div class="item-price">$2,900</div>
-                    </div>
-                </div>
-            </div>
+                </section>
+            </main>
         </div>
+
+        <footer class="footer">
+            <p>&copy; 2025 Pearls Del Perro Pier. All rights reserved.</p>
+            <p>Experience the Finest Catch Under the Stars</p>
+        </footer>
     </div>
-    
-    <!-- Receipt Modal -->
-    <div id="receiptModal" class="modal">
-        <div class="modal-content" style="max-width: 600px;">
-            <span class="close" onclick="closeReceipt()">&times;</span>
-            <div id="receiptContent"></div>
-            <button class="btn" onclick="printReceipt()">Print Receipt</button>
-        </div>
-    </div>
-    
-    <!-- Order History Modal -->
-    <div id="orderHistoryModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeOrderHistory()">&times;</span>
-            <div class="menu-header">
-                <h1>My Order History</h1>
-            </div>
-            <div style="padding: 30px;" id="orderHistoryContent"></div>
-        </div>
-    </div>
-    
-    <script>
-        var currentUser = null;
-        var currentOrderList = [];
-        var employeeOrders = {};
-        
-        function login() {
-            var username = document.getElementById('username').value.trim();
-            var password = document.getElementById('password').value.trim();
-            
-            if (!username || !password) {
-                alert('Please enter both username and password');
-                return;
-            }
-            
-            currentUser = username;
-            
-            if (!employeeOrders[currentUser]) {
-                employeeOrders[currentUser] = [];
-            }
-            
-            document.getElementById('loginScreen').classList.add('hidden');
-            document.getElementById('mainDashboard').classList.remove('hidden');
-            document.getElementById('loggedInUser').textContent = currentUser;
-            
-            updateEmployeeStats();
-        }
-        
-        function logout() {
-            if (confirm('Are you sure you want to logout?')) {
-                currentUser = null;
-                currentOrderList = [];
-                document.getElementById('loginScreen').classList.remove('hidden');
-                document.getElementById('mainDashboard').classList.add('hidden');
-                document.getElementById('username').value = '';
-                document.getElementById('password').value = '';
-            }
-        }
-        
-        function toggleTask(checkbox) {
-            var taskItem = checkbox.parentElement;
-            if (checkbox.checked) {
-                taskItem.classList.add('completed');
-            } else {
-                taskItem.classList.remove('completed');
-            }
-        }
-        
-        function showMenu() {
-            document.getElementById('menuModal').style.display = 'block';
-            updateOrderDisplay();
-        }
-        
-        function closeMenu() {
-            document.getElementById('menuModal').style.display = 'none';
-        }
-        
-        function closeReceipt() {
-            document.getElementById('receiptModal').style.display = 'none';
-        }
-        
-        function closeOrderHistory() {
-            document.getElementById('orderHistoryModal').style.display = 'none';
-        }
-        
-        function addToOrder(itemName, price) {
-            var existing = currentOrderList.find(function(item) {
-                return item.name === itemName;
-            });
-            
-            if (existing) {
-                existing.quantity++;
-            } else {
-                currentOrderList.push({
-                    name: itemName,
-                    price: price,
-                    quantity: 1
-                });
-            }
-            updateOrderDisplay();
-        }
-        
-        function removeFromOrder(index) {
-            currentOrderList.splice(index, 1);
-            updateOrderDisplay();
-        }
-        
-        function updateOrderDisplay() {
-            var orderItemsDiv = document.getElementById('orderItems');
-            var orderTotalSpan = document.getElementById('orderTotal');
-            
-            if (currentOrderList.length === 0) {
-                orderItemsDiv.innerHTML = '<p style="color: #999; text-align: center;">No items yet</p>';
-                orderTotalSpan.textContent = '0';
-                return;
-            }
-            
-            var html = '';
-            var total = 0;
-            
-            for (var i = 0; i < currentOrderList.length; i++) {
-                var item = currentOrderList[i];
-                var itemTotal = item.price * item.quantity;
-                total += itemTotal;
-                html += '<div class="order-item">' +
-                    '<div>' + item.name + '</div>' +
-                    '<div class="order-item-qty">x' + item.quantity + '</div>' +
-                    '<div>$' + itemTotal.toLocaleString() + '</div>' +
-                    '<button class="order-item-remove" onclick="removeFromOrder(' + i + ')">×</button>' +
-                    '</div>';
-            }
-            
-            orderItemsDiv.innerHTML = html;
-            orderTotalSpan.textContent = total.toLocaleString();
-        }
-        
-        function clearOrder() {
-            if (confirm('Clear this order?')) {
-                currentOrderList = [];
-                updateOrderDisplay();
-            }
-        }
-        
-        function generateReceipt() {
-            if (currentOrderList.length === 0) {
-                alert('Please add items first');
-                return;
-            }
-            
-            var now = new Date();
-            var dateStr = now.toLocaleDateString() + ' ' + now.toLocaleTimeString();
-            var orderNumber = Math.floor(Math.random() * 10000);
-            
-            var itemsHtml = '';
-            var total = 0;
-            
-            for (var i = 0; i < currentOrderList.length; i++) {
-                var item = currentOrderList[i];
-                var itemTotal = item.price * item.quantity;
-                total += itemTotal;
-                itemsHtml += '<div class="receipt-item">' +
-                    '<span>' + item.name + ' x' + item.quantity + '</span>' +
-                    '<span>$' + itemTotal.toLocaleString() + '</span>' +
-                    '</div>';
-            }
-            
-            if (currentUser) {
-                employeeOrders[currentUser].push({
-                    orderNumber: orderNumber,
-                    date: dateStr,
-                    items: JSON.parse(JSON.stringify(currentOrderList)),
-                    total: total
-                });
-                updateEmployeeStats();
-            }
-            
-            var receiptHtml = '<div class="receipt">' +
-                '<div class="receipt-header">' +
-                '<h2>PEARLS RESTAURANT</h2>' +
-                '<p>Premium Seafood Dining</p>' +
-                '<p>' + dateStr + '</p>' +
-                '<p>Order #' + orderNumber + '</p>' +
-                '<p>Server: ' + currentUser + '</p>' +
-                '</div>' +
-                '<div>' + itemsHtml + '</div>' +
-                '<div class="receipt-footer">' +
-                '<div class="receipt-total">' +
-                '<span>TOTAL:</span>' +
-                '<span>$' + total.toLocaleString() + '</span>' +
-                '</div>' +
-                '<p class="receipt-thanks">Thank you for dining with us!</p>' +
-                '</div>' +
-                '</div>';
-            
-            document.getElementById('receiptContent').innerHTML = receiptHtml;
-            document.getElementById('receiptModal').style.display = 'block';
-            
-            currentOrderList = [];
-            updateOrderDisplay();
-        }
-        
-        function printReceipt() {
-            window.print();
-        }
-        
-        function updateEmployeeStats() {
-            if (!currentUser || !employeeOrders[currentUser]) return;
-            
-            var orders = employeeOrders[currentUser];
-            var orderCount = orders.length;
-            var totalSales = 0;
-            for (var i = 0; i < orders.length; i++) {
-                totalSales += orders[i].total;
-            }
-            
-            document.getElementById('orderCount').textContent = orderCount;
-            document.getElementById('totalSales').textContent = '$' + totalSales.toLocaleString();
-        }
-        
-        function viewMyOrders() {
-            var content = '';
-            
-            if (!currentUser || !employeeOrders[currentUser] || employeeOrders[currentUser].length === 0) {
-                content = '<p style="text-align: center; color: #999;">No orders yet</p>';
-            } else {
-                var orders = employeeOrders[currentUser];
-                for (var i = 0; i < orders.length; i++) {
-                    var order = orders[i];
-                    content += '<div style="background: #f8f9fa; padding: 20px; margin-bottom: 20px; border-radius: 10px;">' +
-                        '<div style="display: flex; justify-content: space-between; margin-bottom: 15px;">' +
-                        '<strong>Order #' + order.orderNumber + '</strong>' +
-                        '<span style="color: #999;">' + order.date + '</span>' +
-                        '</div>';
-                    
-                    for (var j = 0; j < order.items.length; j++) {
-                        var item = order.items[j];
-                        content += '<div style="display: flex; justify-content: space-between; margin: 5px 0 5px 20px;">' +
-                            '<span>' + item.name + ' x' + item.quantity + '</span>' +
-                            '<span>$' + (item.price * item.quantity).toLocaleString() + '</span>' +
-                            '</div>';
-                    }
-                    
-                    content += '<div style="margin-top: 15px; padding-top: 15px; border-top: 2px solid #ddd; text-align: right;">' +
-                        '<strong style="color: #2d7a7a; font-size: 1.2em;">Total: $' + order.total.toLocaleString() + '</strong>' +
-                        '</div></div>';
-                }
-            }
-            
-            document.getElementById('orderHistoryContent').innerHTML = content;
-            document.getElementById('orderHistoryModal').style.display = 'block';
-        }
-        
-        window.onclick = function(event) {
-            if (event.target.id === 'menuModal') {
-                closeMenu();
-            }
-            if (event.target.id === 'receiptModal') {
-                closeReceipt();
-            }
-            if (event.target.id === 'orderHistoryModal') {
-                closeOrderHistory();
-            }
-        }
-        
-        document.getElementById('password').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                login();
-            }
-        });
-    </script>
 </body>
 </html>
