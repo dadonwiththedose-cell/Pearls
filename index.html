@@ -309,21 +309,21 @@ function showError(id, msg) {
 
 async function getUsers() {
     try {
-        const res = await window.storage.get('users', true);
-        return res ? JSON.parse(res.value) : {};
+        const data = localStorage.getItem('royale_users');
+        return data ? JSON.parse(data) : {};
     } catch (e) { return {}; }
 }
 async function saveUsers(users) {
-    await window.storage.set('users', JSON.stringify(users), true);
+    localStorage.setItem('royale_users', JSON.stringify(users));
 }
 async function getLoans() {
     try {
-        const res = await window.storage.get('loans', true);
-        return res ? JSON.parse(res.value) : {};
+        const data = localStorage.getItem('royale_loans');
+        return data ? JSON.parse(data) : {};
     } catch (e) { return {}; }
 }
 async function saveLoans(loans) {
-    await window.storage.set('loans', JSON.stringify(loans), true);
+    localStorage.setItem('royale_loans', JSON.stringify(loans));
 }
 
 async function handleSignup() {
@@ -336,18 +336,22 @@ async function handleSignup() {
         return;
     }
 
-    const users = await getUsers();
-    if (users[username]) {
-        showError('signupError', 'That username is already taken.');
-        return;
+    try {
+        const users = await getUsers();
+        if (users[username]) {
+            showError('signupError', 'That username is already taken.');
+            return;
+        }
+
+        users[username] = { name, password };
+        await saveUsers(users);
+
+        currentUser = username;
+        isAdmin = false;
+        await loadDashboard();
+    } catch (e) {
+        showError('signupError', 'Something went wrong creating your account. Please try again.');
     }
-
-    users[username] = { name, password };
-    await saveUsers(users);
-
-    currentUser = username;
-    isAdmin = false;
-    await loadDashboard();
 }
 
 async function handleLogin() {
