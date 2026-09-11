@@ -290,6 +290,7 @@ h2 { font-size: 1.3em; margin-top: 30px; }
 let currentUser = null;
 let isAdmin = false;
 const ADMIN_PASSCODE = "royale-staff-2026";
+const WORKER_URL = "https://royale-payments.dadonwithdose.workers.dev";
 
 function showView(viewId) {
     ['loginView','signupView','adminLoginView','dashboardView','adminView'].forEach(id => {
@@ -424,7 +425,7 @@ async function loadDashboard() {
                 ${!isPaid ? `
                 <div class="pay-row">
                     <input type="number" id="payAmount-${id}" placeholder="Payment amount ($)">
-                    <button class="btn" style="width:auto;" onclick="makePayment('${id}')">Make Payment</button>
+                    <button class="btn" style="width:auto;" onclick="makePayment('${id}')">Pay with Fleeca</button>
                 </div>` : ''}
             `;
             loanListEl.appendChild(div);
@@ -451,13 +452,159 @@ async function makePayment(loanId) {
     const remaining = loan.amount - loan.paid;
 
     if (amount > remaining) {
-        alert('Payment exceeds remaining balance of $' + remaining.toLocaleString() + '.');
+        alert('Payment exceeds remaining balance of 
+
+function loadAdminDashboard() {
+    showView('adminView');
+    switchAdminTab('issue');
+}
+
+function switchAdminTab(tab) {
+    document.getElementById('tabIssue').classList.toggle('active', tab === 'issue');
+    document.getElementById('tabClients').classList.toggle('active', tab === 'clients');
+    document.getElementById('adminIssueTab').classList.toggle('hidden', tab !== 'issue');
+    document.getElementById('adminClientsTab').classList.toggle('hidden', tab !== 'clients');
+    if (tab === 'clients') loadClientList();
+}
+
+async function issueLoan() {
+    const username = document.getElementById('issueUsername').value.trim().toLowerCase();
+    const amount = parseFloat(document.getElementById('issueAmount').value);
+    const term = document.getElementById('issueTerm').value;
+    const purpose = document.getElementById('issuePurpose').value.trim();
+    const msgEl = document.getElementById('adminIssueMsg');
+
+    const users = await getUsers();
+    if (!users[username]) {
+        msgEl.classList.remove('hidden');
+        msgEl.classList.replace('success-msg','error-msg');
+        msgEl.textContent = 'No client found with that username. They must create an account first.';
+        return;
+    }
+    if (!amount || amount <= 0) {
+        msgEl.classList.remove('hidden');
+        msgEl.classList.replace('success-msg','error-msg');
+        msgEl.textContent = 'Please enter a valid loan amount.';
         return;
     }
 
-    loan.paid += amount;
+    const loans = await getLoans();
+    const loanId = 'loan_' + Date.now();
+    loans[loanId] = { username, amount, term, purpose, paid: 0, issuedAt: new Date().toISOString() };
     await saveLoans(loans);
-    await loadDashboard();
+
+    msgEl.classList.remove('hidden');
+    msgEl.classList.replace('error-msg','success-msg');
+    msgEl.textContent = `Loan of $${amount.toLocaleString()} issued to ${users[username].name}.`;
+
+    document.getElementById('issueUsername').value = '';
+    document.getElementById('issueAmount').value = '';
+    document.getElementById('issuePurpose').value = '';
+}
+
+async function loadClientList() {
+    const users = await getUsers();
+    const loans = await getLoans();
+    const listEl = document.getElementById('clientList');
+    listEl.innerHTML = '';
+
+    const usernames = Object.keys(users);
+    if (usernames.length === 0) {
+        listEl.innerHTML = '<div class="empty-state">No registered clients yet.</div>';
+        return;
+    }
+
+    usernames.forEach(username => {
+        const user = users[username];
+        const userLoans = Object.values(loans).filter(l => l.username === username);
+        const totalOwed = userLoans.reduce((sum, l) => sum + (l.amount - l.paid), 0);
+
+        const div = document.createElement('div');
+        div.className = 'client-list-item';
+        div.innerHTML = `
+            <div><strong>${user.name}</strong> <span style="color:#888;">(@${username})</span></div>
+            <div style="color:#b8a46a;">${userLoans.length} loan(s) &nbsp;|&nbsp; ${totalOwed.toLocaleString()} outstanding</div>
+        `;
+        listEl.appendChild(div);
+    });
+}
+
+// If a client is returning from a Fleeca payment, try to auto-login is not possible
+// (localStorage session isn't kept across redirect in this simple demo), so we just
+// check the payment status once they're back and logged in.
+window.addEventListener('DOMContentLoaded', () => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('payment_id') && currentUser) {
+        checkReturnFromPayment();
+    }
+});
+</script>
+</body>
+</html> + remaining.toLocaleString() + '.');
+        return;
+    }
+
+    // Remember which loan/amount is being paid so we can confirm it after redirect
+    sessionInfo_setPendingPayment(loanId, amount);
+
+    try {
+        const res = await fetch(`${WORKER_URL}/create-payment`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                amount: amount,
+                description: `Royale Investment - Loan ${loanId} installment`,
+                loan_id: loanId,
+                username: currentUser
+            })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok || !data.payment_link) {
+            alert('Could not start payment. Please try again shortly.');
+            return;
+        }
+
+        // Send the client to Fleeca's hosted payment page
+        window.location.href = data.payment_link;
+    } catch (err) {
+        alert('Could not reach the payment system. Please try again shortly.');
+    }
+}
+
+function sessionInfo_setPendingPayment(loanId, amount) {
+    // Using a plain in-memory variable won't survive the redirect to Fleeca,
+    // so we pass it via the URL when Fleeca redirects back instead (see checkReturnFromPayment).
+    window.__pendingLoanId = loanId;
+}
+
+async function checkReturnFromPayment() {
+    const params = new URLSearchParams(window.location.search);
+    const paymentId = params.get('payment_id');
+    if (!paymentId) return;
+
+    try {
+        const res = await fetch(`${WORKER_URL}/check-payment?payment_id=${encodeURIComponent(paymentId)}`);
+        const data = await res.json();
+
+        if (data.status === 'success') {
+            const loans = await getLoans();
+            const loan = loans[data.loan_id];
+            if (loan) {
+                loan.paid += Number(data.amount);
+                await saveLoans(loans);
+                alert('Payment successful! Your loan balance has been updated.');
+            }
+        } else if (data.status === 'failed') {
+            alert('Your payment was not completed. Please try again.');
+        }
+    } catch (err) {
+        // Silent fail - client can still see accurate balance from staff-issued records
+    }
+
+    // Clean the URL so refreshing doesn't re-trigger this
+    window.history.replaceState({}, document.title, window.location.pathname);
 }
 
 function loadAdminDashboard() {
