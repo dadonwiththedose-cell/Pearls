@@ -125,7 +125,22 @@ h2 { font-size: 1.3em; margin-top: 30px; }
 
 .admin-loan-form { background:#151515; border:1px solid #2a2a2a; padding:25px; margin-bottom:30px; }
 .form-row-2 { display:grid; grid-template-columns:1fr 1fr; gap:15px; }
-.client-list-item { background:#151515; border:1px solid #2a2a2a; padding:15px 20px; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;}
+.client-list-item { background:#151515; border:1px solid #2a2a2a; padding:15px 20px; margin-bottom:12px; cursor:pointer; transition: 0.2s; }
+.client-list-item:hover { border-color: #b8a46a; }
+.client-row-top { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; }
+.client-loans-panel { margin-top: 18px; padding-top: 18px; border-top: 1px dashed #333; }
+.staff-loan-item { background:#0f0f0f; border:1px solid #2a2a2a; padding:18px; margin-bottom:14px; }
+.staff-loan-row { display:grid; grid-template-columns: repeat(auto-fit, minmax(110px,1fr)); gap:10px; margin-bottom:12px; }
+.staff-loan-row .field label { display:block; color:#888; font-size:0.75em; text-transform:uppercase; margin-bottom:4px; }
+.staff-loan-row .field input, .staff-loan-row .field select {
+    width:100%; padding:8px 10px; background:#000; border:1px solid #333; color:#d4d4d4; font-family:'Georgia',serif; font-size:0.9em;
+}
+.staff-loan-actions { display:flex; gap:10px; margin-top:10px; }
+.btn-small { padding:8px 18px; font-size:0.85em; width:auto; margin-top:0; }
+.btn-outline-gold { background:transparent; border:1px solid #b8a46a; color:#b8a46a; }
+.btn-outline-gold:hover { background:#b8a46a; color:#0a0a0a; }
+.btn-outline-red { background:transparent; border:1px solid #a05555; color:#d98a8a; }
+.btn-outline-red:hover { background:#a05555; color:#fff; }
 
 .hidden { display:none !important; }
 .loading-text { text-align:center; color:#888; font-style:italic; padding:20px; }
@@ -600,15 +615,159 @@ async function loadClientList() {
         }
 
         clients.forEach(function(c) {
-            var div = document.createElement('div');
-            div.className = 'client-list-item';
-            div.innerHTML =
+            var wrap = document.createElement('div');
+            wrap.className = 'client-list-item';
+            wrap.id = 'client-' + c.username;
+
+            var top = document.createElement('div');
+            top.className = 'client-row-top';
+            top.innerHTML =
                 '<div><strong>' + c.name + '</strong> <span style="color:#888;">(@' + c.username + ')</span></div>' +
-                '<div style="color:#b8a46a;">' + c.loanCount + ' loan(s) &nbsp;|&nbsp; $' + c.totalOwed.toLocaleString() + ' outstanding</div>';
-            listEl.appendChild(div);
+                '<div style="color:#b8a46a;">' + c.loanCount + ' loan(s) &nbsp;|&nbsp; 
+
+window.addEventListener('DOMContentLoaded', function() {
+    var params = new URLSearchParams(window.location.search);
+    if (params.get('payment_id')) {
+        checkReturnFromPayment();
+    }
+});
+</script>
+</body>
+</html>
+ + c.totalOwed.toLocaleString() + ' outstanding</div>';
+            top.onclick = function() { toggleClientLoans(c.username); };
+            wrap.appendChild(top);
+
+            var panel = document.createElement('div');
+            panel.className = 'client-loans-panel hidden';
+            panel.id = 'panel-' + c.username;
+            wrap.appendChild(panel);
+
+            listEl.appendChild(wrap);
         });
     } catch (e) {
         listEl.innerHTML = '<div class="empty-state">Could not reach the server. Please try again.</div>';
+    }
+}
+
+async function toggleClientLoans(username) {
+    var panel = document.getElementById('panel-' + username);
+    var isHidden = panel.classList.contains('hidden');
+
+    // collapse any other open panels
+    document.querySelectorAll('.client-loans-panel').forEach(function(p) {
+        p.classList.add('hidden');
+        p.innerHTML = '';
+    });
+
+    if (!isHidden) return; // was open, now just closed it
+
+    panel.classList.remove('hidden');
+    panel.innerHTML = '<div class="loading-text">Loading loans...</div>';
+
+    try {
+        var res = await fetch(WORKER_URL + '/client-loans?username=' + encodeURIComponent(username), {
+            headers: { 'X-Staff-Passcode': staffPasscode }
+        });
+        var data = await res.json();
+        var loans = data.loans || [];
+
+        if (loans.length === 0) {
+            panel.innerHTML = '<div class="empty-state">This client has no loans yet.</div>' +
+                '<button class="btn btn-small btn-outline-red" onclick="event.stopPropagation(); deleteClient(\'' + username + '\')">Delete Client Account</button>';
+            return;
+        }
+
+        var html = '';
+        loans.forEach(function(loan) {
+            html +=
+                '<div class="staff-loan-item" onclick="event.stopPropagation();">' +
+                    '<div style="color:#b8a46a; margin-bottom:10px; font-size:0.9em;">Loan #' + loan.id.slice(-5) + '</div>' +
+                    '<div class="staff-loan-row">' +
+                        '<div class="field"><label>Amount ($)</label><input type="number" id="edit-amount-' + loan.id + '" value="' + loan.amount + '"></div>' +
+                        '<div class="field"><label>Paid ($)</label><input type="number" id="edit-paid-' + loan.id + '" value="' + loan.paid + '"></div>' +
+                        '<div class="field"><label>Term</label>' +
+                            '<select id="edit-term-' + loan.id + '">' +
+                                ['1 Week','2 Weeks','3 Weeks','4 Weeks','Custom'].map(function(t) {
+                                    return '<option value="' + t + '"' + (t === loan.term ? ' selected' : '') + '>' + t + '</option>';
+                                }).join('') +
+                            '</select>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="field"><label>Purpose / Notes</label><input type="text" id="edit-purpose-' + loan.id + '" value="' + (loan.purpose || '').replace(/"/g,'&quot;') + '"></div>' +
+                    '<div class="staff-loan-actions">' +
+                        '<button class="btn btn-small btn-outline-gold" onclick="saveLoanEdit(\'' + loan.id + '\', \'' + username + '\')">Save Changes</button>' +
+                        '<button class="btn btn-small btn-outline-red" onclick="deleteLoan(\'' + loan.id + '\', \'' + username + '\')">Delete Loan</button>' +
+                    '</div>' +
+                '</div>';
+        });
+        html += '<button class="btn btn-small btn-outline-red" onclick="deleteClient(\'' + username + '\')">Delete Client Account</button>';
+
+        panel.innerHTML = html;
+    } catch (e) {
+        panel.innerHTML = '<div class="empty-state">Could not load this client\'s loans.</div>';
+    }
+}
+
+async function saveLoanEdit(loanId, username) {
+    var amount = document.getElementById('edit-amount-' + loanId).value;
+    var paid = document.getElementById('edit-paid-' + loanId).value;
+    var term = document.getElementById('edit-term-' + loanId).value;
+    var purpose = document.getElementById('edit-purpose-' + loanId).value;
+
+    try {
+        var res = await fetch(WORKER_URL + '/edit-loan', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-Staff-Passcode': staffPasscode },
+            body: JSON.stringify({ loanId: loanId, amount: amount, paid: paid, term: term, purpose: purpose })
+        });
+        var data = await res.json();
+        if (!res.ok) {
+            alert(data.error || 'Could not update loan.');
+            return;
+        }
+        alert('Loan updated successfully.');
+        await loadClientList();
+    } catch (e) {
+        alert('Could not reach the server.');
+    }
+}
+
+async function deleteLoan(loanId, username) {
+    if (!confirm('Delete this loan permanently? This cannot be undone.')) return;
+    try {
+        var res = await fetch(WORKER_URL + '/delete-loan', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-Staff-Passcode': staffPasscode },
+            body: JSON.stringify({ loanId: loanId })
+        });
+        var data = await res.json();
+        if (!res.ok) {
+            alert(data.error || 'Could not delete loan.');
+            return;
+        }
+        await loadClientList();
+    } catch (e) {
+        alert('Could not reach the server.');
+    }
+}
+
+async function deleteClient(username) {
+    if (!confirm('Delete this client and ALL their loans permanently? This cannot be undone.')) return;
+    try {
+        var res = await fetch(WORKER_URL + '/delete-client', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-Staff-Passcode': staffPasscode },
+            body: JSON.stringify({ username: username })
+        });
+        var data = await res.json();
+        if (!res.ok) {
+            alert(data.error || 'Could not delete client.');
+            return;
+        }
+        await loadClientList();
+    } catch (e) {
+        alert('Could not reach the server.');
     }
 }
 
